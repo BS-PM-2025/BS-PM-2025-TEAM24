@@ -1,28 +1,48 @@
 pipeline {
     agent none
+
     stages {
+        stage('Install Dependencies') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    args  '-u root:root'     // run as root so npm ci can write to node_modules
+                }
+            }
+            steps {
+                // do a clean, reproducible install
+                sh 'npm ci'
+            }
+        }
+
         stage('Build') {
             agent {
                 docker {
-                    image 'python:2-alpine'
+                    image 'node:18-alpine'
+                    args  '-u root:root'
                 }
             }
             steps {
-                sh 'python -m py_compile sources/add2vals.py sources/calc.py'
+                // if you have a build step (e.g. webpack, tsc), otherwise omit
+                sh 'npm run build'
             }
         }
+
         stage('Test') {
             agent {
                 docker {
-                    image 'qnib/pytest'
+                    image 'node:18-alpine'
+                    args  '-u root:root'
                 }
             }
             steps {
-                sh 'py.test --verbose --junit-xml test-reports/results.xml sources/test_calc.py'
+                // make sure you’ve added a JUnit reporter (e.g. jest-junit) in your test config
+                sh 'npm test -- --ci --reporters=default --reporters=jest-junit'
             }
             post {
                 always {
-                    junit 'test-reports/results.xml'
+                    // tells Jenkins where to find the XML results
+                    junit 'test-results/junit.xml'
                 }
             }
         }
