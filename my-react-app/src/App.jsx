@@ -5,6 +5,8 @@ import CustomerSignUp from './screens/CustomerSignUp.jsx';
 import WorkerSignup from './screens/WorkerSignup.jsx'; 
 import ForgotPassword from './screens/ForgotPassword.jsx';
 import Login from './screens/Login.jsx';
+import ProfilePage from './screens/ProfilePage.jsx'; 
+
 
 
 
@@ -18,6 +20,8 @@ function App() {
         <Route path="/CustomerSignUp" element={<CustomerSignUp />} />
         <Route path="/WorkerSignup" element={<WorkerSignup />} />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
+        <Route path="/ProfilePage" element={<ProfilePage />} />
+
 
       </Routes>
     </Router>
