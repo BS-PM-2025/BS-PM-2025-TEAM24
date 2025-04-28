@@ -5,6 +5,7 @@ const authRouter = new Router();
 
 
 authRouter.post('/signupcos', authController.signupcos);
+authRouter.post('/signupwor', authController.signupwor);
 
 
 
