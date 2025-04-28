@@ -1,30 +1,40 @@
 pipeline {
-  agent none
+  /* Run the pipeline on any available agent */
+  agent any
+
+  environment {
+    /* Make sure Jest/Mocha/etc. runs in CI mode */
+    CI = 'true'
+  }
 
   stages {
-    // 1) Let Jenkins clone your code
+    /* 1) Clone the repo, forcing 'main' as the branch */
     stage('Checkout') {
-      agent any
       steps {
-        // uses the Multibranch Pipeline’s SCM settings
-        checkout scm
+        checkout([
+          $class: 'GitSCM',
+          branches: [[ name: '*/main' ]],                  // ← point here to your real default branch
+          userRemoteConfigs: [[
+            url: 'https://github.com/YourOrg/YourRepo.git' // ← update to your actual GitHub URL
+          ]]
+        ])
       }
     }
 
-    // 2) Install dependencies
+    /* 2) Install npm dependencies */
     stage('Install Dependencies') {
       agent {
         docker {
           image 'node:18-alpine'
-          args  '-u root:root'       // run as root so npm can write
+          args  '-u root:root'    // npm needs write permission
         }
       }
       steps {
-        sh 'npm ci'     // clean install
+        sh 'npm ci'
       }
     }
 
-    // 3) Run your unit tests
+    /* 3) Run unit tests and publish JUnit report */
     stage('Run Unit Tests') {
       agent {
         docker {
@@ -32,22 +42,18 @@ pipeline {
           args  '-u root:root'
         }
       }
-      environment {
-        CI = 'true'
-      }
       steps {
-        // adapt to whatever test command you have
+        // adjust this to whatever your test runner is
         sh 'npm test -- --ci --reporters=jest-junit --outputFile=test-reports/results.xml'
       }
       post {
         always {
-          // publish JUnit XML
           junit 'test-reports/results.xml'
         }
       }
     }
 
-    // 4) (Optional) Boot your app briefly to smoke-test it
+    /* 4) Smoke-test your app by starting it briefly */
     stage('Smoke Test App Startup') {
       agent {
         docker {
@@ -56,7 +62,6 @@ pipeline {
         }
       }
       steps {
-        // Spawn your app in the background, wait a few seconds, then kill
         sh '''
           npm start & 
           APP_PID=$!
@@ -70,7 +75,7 @@ pipeline {
 
   post {
     failure {
-      echo "🚨 Build or tests failed. Check the console output for details."
+      echo "🚨 Build failed or tests failed – check the console output."
     }
   }
 }
