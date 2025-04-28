@@ -661,7 +661,17 @@ const ProfilePage = () => {
           House<span style={styles.logoHighlight}>Fix</span>
         </div>
         <nav style={styles.nav}>
-       
+        <a
+            href="#"
+            style={styles.navLink}
+            onClick={(e) => {
+              e.preventDefault();
+              localStorage.removeItem('userData');
+              window.location.href = '/login';
+            }}
+          >
+            <FaSignOutAlt style={styles.tabIcon} /> Logout
+          </a>
         </nav>
       </header>
   
