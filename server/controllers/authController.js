@@ -176,6 +176,62 @@ exports.authController = {
                 res.status(500).json({ "message": "Error finding user" });
             });
     },
+
+    async login(req, res) {
+        const email = String(req.body.email).toLowerCase();
+        try {
+            const user = await User.findOne({ email })
+            if (!user) {
+                errorLogger.error("Wrong user email please enter correct email");
+                res.status(400).json({ "message": "Wrong user email please enter correct email" });
+                return;
+            }
+            const passwordIsValid = bcrypt.compareSync(
+                req.body.password,
+                user.password
+            );
+            if (!passwordIsValid) {
+                return res.status(401).json({
+                    accessToken: null,
+                    message: "Invalid Password!"
+                });
+            }
+            const token = jwt.sign({ id: user._id }, SECRET, {
+                expiresIn: 14 * 86400 //  14*24 hours
+            });
+            let userResponse = {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                age: user.age,
+                gender: user.gender,
+                isAdmin:user.isAdmin,
+                isWorker:user.isWorker,
+                workType:user.workType,
+                city:user.city,
+                street:user.street,
+                houseNumber:user.houseNumber,
+                description:user.description,
+                userCalls:user.userCalls,
+                accessToken: token
+            }
+            if (user.isWorker) {
+                userResponse.workerCalls = user.workerCalls
+            }
+
+            res.status(200).json(userResponse);
+        }
+        catch (err) {
+            errorLogger.error(`Error Getting user from db:${err}`);
+            res.status(500).json({ "message": `Error getting user ` });
+        }
+
+
+    },
+
+
+
+
     async resetPassword(req, res) {
         const { email, otp, newPassword } = req.body;
         if (!email || !otp || !newPassword) {
