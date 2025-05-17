@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:18'  // ✅ Node.js with npm pre-installed
+        }
+    }
 
     stages {
         stage('Install Root Dependencies') {
@@ -10,7 +14,7 @@ pipeline {
 
         stage('Run Unit Tests') {
             steps {
-                sh 'npm test'       // This runs jest on server/tests/*.test.js jenkins
+                sh 'npm test'
             }
         }
     }
