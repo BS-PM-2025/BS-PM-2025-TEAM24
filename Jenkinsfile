@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Install Root Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Run Unit Tests') {
+            steps {
+                sh 'npm test'       // This runs jest on server/tests/*.test.js jenkins
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ All unit tests passed!'
+        }
+        failure {
+            echo '❌ Unit tests failed!'
+        }
+    }
+}
