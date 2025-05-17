@@ -10,7 +10,7 @@ pipeline {
 
         stage('Run Unit Tests') {
             steps {
-                sh 'npm test' // This runs jest on server/tests/*.test.js
+                sh 'npm test' // This runs jest on server/tests/*.test.js jenkins
             }
         }
     }
