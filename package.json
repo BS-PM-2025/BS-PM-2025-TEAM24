@@ -7,7 +7,7 @@
     "server": "cd server && npm run dev",
     "client": "cd my-react-app && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "test": "jest"
+    "test": "jest server/tests"
   },
   "dependencies": {
     "bootstrap": "^5.3.5",
