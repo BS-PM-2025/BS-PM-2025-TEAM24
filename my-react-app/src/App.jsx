@@ -6,6 +6,7 @@ import WorkerSignup from './screens/WorkerSignup.jsx';
 import ForgotPassword from './screens/ForgotPassword.jsx';
 import Login from './screens/Login.jsx';
 import ProfilePage from './screens/ProfilePage.jsx'; 
+import UserManagement from './screens/UserManagement.jsx'; 
 
 
 
@@ -21,8 +22,8 @@ function App() {
         <Route path="/WorkerSignup" element={<WorkerSignup />} />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/ProfilePage" element={<ProfilePage />} />
-
-
+        <Route path="/UserManagement" element={<UserManagement />} />
+        
       </Routes>
     </Router>
   );
