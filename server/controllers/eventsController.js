@@ -73,7 +73,37 @@ exports.eventsController = {
             errorLogger.error(`Error fetching calls by type: ${err}`);
             res.status(500).json({ message: "Error fetching calls", error: err });
         }
-    }
+    },
+    async updateEvent(req, res) {
+        const { callID: eventId } = req.params;
+        const { callType, city, street, houseNumber, description, status } = req.body;
+    
+        try {
+            const eventToUpdate = await Events.findOne({ callID: eventId });  // <-- fixed here
+    
+            if (!eventToUpdate) {
+                errorLogger.error(`Call not found: ${eventId}`);
+                return res.status(404).json({ message: "Call not found" });
+            }
+    
+            // Update only allowed fields
+            eventToUpdate.callType = callType;
+            eventToUpdate.city = city;
+            eventToUpdate.street = street;
+            eventToUpdate.houseNumber = houseNumber;
+            eventToUpdate.description = description;
+            eventToUpdate.status = status;
+    
+            await eventToUpdate.save();
+    
+            infoLogger.info(`Call updated successfully: ${eventId}`);
+            res.json({ message: "Call updated successfully", event: eventToUpdate });
+    
+        } catch (err) {
+            errorLogger.error(`Error updating Call: ${err}`);
+            res.status(500).json({ message: "Error updating Call", error: err });
+        }
+    }  
 };
 
 
