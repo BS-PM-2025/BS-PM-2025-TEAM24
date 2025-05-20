@@ -63,7 +63,34 @@ exports.usersController = {
             res.status(500).json({ "message": "Error updating user details", error: err });
         }
     },    
-   
+    async deleteUser(req, res) {
+        infoLogger.info("Delete a user");
+
+        User.deleteOne({ _id: req.params.id })
+            .then((result) => {
+                if (result.deletedCount > 0) {
+                    infoLogger.info(`Deleting user no:${req.params.id} is successfully`);
+                    res.json({ "message": `Deleting user no:${req.params.id} is successfully` });
+                }
+                else {
+                    errorLogger.error(`user no:${req.params.id} does not exists`);
+                    res.status(400).json({ "message": `user no:${req.params.id} does not exists` });
+                }
+            })
+            .catch(() => {
+                errorLogger.error(`Error Deleting user no:${req.params.id} `);
+                res.status(400).json({ "message": `Error Deleting user no:${req.params.id} ` });
+            });
+    },
+    async getAllUsers(req, res){
+        try {
+          const users = await User.find().select("-password"); // Hide passwords
+          res.status(200).json(users);
+        } catch (error) {
+          console.error("❌ Failed to get users:", error);
+          res.status(500).json({ message: "Failed to fetch users" });
+        }
+    },
     async updatePassword (req, res) {
         try {
             const { currentPassword, newPassword } = req.body;

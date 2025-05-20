@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaUser, FaEdit, FaLock, FaHome, FaEnvelope, FaVenusMars, FaCalendarAlt, FaMapMarkerAlt, FaSignOutAlt } from 'react-icons/fa';
+import {FaUsers,FaTools, FaUser, FaEdit, FaLock, FaHome, FaEnvelope, FaVenusMars, FaCalendarAlt, FaMapMarkerAlt, FaSignOutAlt,FaInfoCircle,FaBars } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -27,6 +27,7 @@ const ProfilePage = () => {
   const [setShowStreetFields] = useState(false);
   const [streets, setStreets] = useState([]);
   const mapRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [originalUserData, setOriginalUserData] = useState(null);
   const markerRef = useRef(null);
   
@@ -370,27 +371,58 @@ const ProfilePage = () => {
     }
   }, [userData.city]);
   
-  
+  const handleMenuSelect = (option) => {
+    setMenuOpen(false);
+    if (option === 'MainPage'){
+      if (userData.userType=='Worker')
+       navigate('/WorkerMain');
+      else if(userData.userType=='Admin')
+        navigate('/AdminMain');
+      else if(userData.userType=='Customer')
+        navigate('/CustomerMain');
+    }
+    else if (option === 'MyWorks') navigate('/MyWorks');
+    else if (option === 'MyCalls') navigate('/MyCalls');
+    else if (option === 'UsersList') navigate('/UserManagement');
+    else if (option === 'Profile') navigate('/ProfilePage');
+    else if (option === 'Help') navigate('/HelpPage');
+    else if (option === 'Logout') {
+      localStorage.removeItem('userData');
+      navigate('/login');
+    }
+  };
 
   // All styles defined as a JavaScript object
   const styles = {
     select: { width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', fontSize: '14px' },
   container: {
+    position: 'fixed',          // Ensure it fills the screen
+    top: 0,
+    left: 0,
+    width: '100vw',             // Full viewport width
+    height: '100vh', 
     minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
     backgroundImage: 'url("https://images.unsplash.com/photo-1570129477492-45c003edd2be")',
     backgroundSize: 'cover',
-    backgroundPosition: 'center'
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat' ,// Avoid tiling
+    overflow: 'hidden'
+
   },
   header: {
+    position: 'fixed',
+    width: '97%',
     backgroundColor: '#4a6fa5',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
     padding: '1rem 2rem',
     display: 'flex',
+    color: 'white',
     justifyContent: 'space-between',
     alignItems: 'center'
   },
+  
   logo: {
     display: 'flex',
     alignItems: 'center',
@@ -409,7 +441,8 @@ const ProfilePage = () => {
   nav: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1.5rem'
+    gap: '1.5rem',
+
   },
   navLink: {
     display: 'flex',
@@ -425,10 +458,11 @@ const ProfilePage = () => {
     fontWeight: 600
   },
     main: {
+      marginTop: '80px', // adjust based on header height
       display: 'flex',
       flex: 1,
       maxWidth: '1200px',
-      margin: '2rem auto',
+      margin: '5.5rem auto',
       width: '100%',
       gap: '2rem',
       padding: '0 1rem'
@@ -509,7 +543,10 @@ const ProfilePage = () => {
       padding: '2rem'
     },
     section: {
-      marginBottom: '1.5rem'
+      marginBottom: '1.5rem',
+      maxHeight: 'calc(100vh - 200px)', // fits within the screen
+      overflowY: 'auto',
+      overflowX: 'hidden'
     },
     sectionTitle: {
       fontSize: '1.3rem',
@@ -641,7 +678,40 @@ const ProfilePage = () => {
         backgroundColor: '#4a6fa5',
         color: 'white',
         cursor: 'pointer'
-      }
+      },
+      menuIcon: {
+        fontSize: '1.6rem',
+        color: 'white',
+        cursor: 'pointer',
+        marginLeft: '1.5rem',
+      },
+      dropdown: {
+        position: 'absolute',
+        top: '52px',
+        right: '-10px',  // ✅ add this line to align it to the right
+        backgroundColor: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        maxWidth: '200px',
+        minWidth: '180px',
+        padding: '2rem 0', // ↑ increase top/bottom padding
+        overflow: 'hidden',
+        zIndex: 2000,
+      },
+      
+      menuItem: {
+        display: 'flex',
+        alignItems: 'center',
+        padding: '1rem 1.4rem',
+        gap: '0.75rem',
+        fontSize: '1rem',
+        color: '#333',
+        backgroundColor: 'white',
+        cursor: 'pointer',
+        borderBottom: '1px solid #eee',
+        transition: 'background 0.2s ease',
+      },
+      
   };
 
   if (loading) {
@@ -660,19 +730,47 @@ const ProfilePage = () => {
           <img src={logo} alt="Logo" style={styles.logoImage} />
           House<span style={styles.logoHighlight}>Fix</span>
         </div>
-        <nav style={styles.nav}>
-        <a
-            href="#"
-            style={styles.navLink}
-            onClick={(e) => {
-              e.preventDefault();
-              localStorage.removeItem('userData');
-              window.location.href = '/login';
-            }}
-          >
-            <FaSignOutAlt style={styles.tabIcon} /> Logout
-          </a>
-        </nav>
+        <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+          <h1 style={{ margin: 0 }}>
+              <FaUser /> ProfilePage
+          </h1>
+          <FaBars onClick={() => setMenuOpen(!menuOpen)} style={styles.menuIcon} />
+          {menuOpen && (
+            <div style={styles.dropdown}>
+              <div style={styles.menuItem} onClick={() => handleMenuSelect('MainPage')}>
+                <FaHome /> MainPage
+              </div>
+              {/* Conditionally render menu items */}
+              {userData.userType === 'Worker' && (
+                  <div style={styles.menuItem} onClick={() => handleMenuSelect('MyWorks')}>
+                    <FaTools /> MyWorks
+                  </div>
+                )}
+
+                {userData.userType === 'Customer' && (
+                  <div style={styles.menuItem} onClick={() => handleMenuSelect('MyCalls')}>
+                    <FaTools /> MyCalls
+                  </div>
+                )}
+                {userData.userType === 'Admin' && (
+                  <div style={styles.menuItem} onClick={() => handleMenuSelect('UsersList')}>
+                    <FaUsers /> Users List
+                  </div>
+                )}
+              <div style={styles.menuItem} onClick={() => handleMenuSelect('Profile')}>
+                <FaUser /> Profile
+              </div>
+              {!(userData.userType === 'Admin') && (
+                <div style={styles.menuItem} onClick={() => handleMenuSelect('Help')}>
+                  <FaInfoCircle /> Help
+                </div>
+              )}
+              <div style={styles.menuItem} onClick={() => handleMenuSelect('Logout')}>
+                <FaSignOutAlt /> Logout
+              </div>
+            </div>
+          )}
+        </div>
       </header>
   
       {/* Main Content */}
