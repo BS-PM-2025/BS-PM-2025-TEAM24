@@ -8,6 +8,7 @@ import Login from './screens/Login.jsx';
 import ProfilePage from './screens/ProfilePage.jsx'; 
 import UserManagement from './screens/UserManagement.jsx'; 
 import CustomerMain from './screens/CustomerMain.jsx'; 
+import WorkerMain from './screens/WorkerMain.jsx'; 
 
 
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/ProfilePage" element={<ProfilePage />} />
         <Route path="/UserManagement" element={<UserManagement />} />
         <Route path="/CustomerMain" element={<CustomerMain />} />
+        <Route path="/WorkerMain" element={<WorkerMain />} />
       </Routes>
     </Router>
   );
