@@ -307,6 +307,36 @@ export default function CustomerMain() {
     }
   };
   
+const handleDeleteCall = async (callID) => {
+    const storedUser = JSON.parse(localStorage.getItem('userData'));
+    const shouldDelete = window.confirm('Are you sure you want to delete this call?');
+    if (!shouldDelete) return;
+
+    if (!storedUser || !storedUser.accessToken) {
+        alert("Unauthorized. Please log in again.");
+        return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/events/deleteEvent/${callID}`, {
+        method: "DELETE",
+        headers: {
+          "x-access-token": storedUser.accessToken
+        }
+      });
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Call deleted succesfully ...! ");
+        fetchAllCalls();
+      } else {
+        alert("❌ Failed to delete call: " + result.message);
+      }
+    } catch (err) {
+      console.error("❌ Error with deleting call:", err);
+      alert("An unexpected error occurred while deleting the call.");
+    }
+  };
 
   const fetchAllCalls = async () => {
     const storedUser = JSON.parse(localStorage.getItem('userData'));
@@ -459,6 +489,21 @@ export default function CustomerMain() {
                         }}
                       >
                         Edit
+                      </button>
+                      <button
+                        style={{
+                          backgroundColor: '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          padding: '12.5px 60px',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontSize: '1rem',
+                          minWidth: '110px'
+                        }}
+                        onClick={() => handleDeleteCall(call.callID)}
+                      >
+                        Delete
                       </button>
                     </div>
                   </div>

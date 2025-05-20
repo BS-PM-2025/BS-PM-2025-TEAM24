@@ -103,6 +103,21 @@ exports.eventsController = {
             errorLogger.error(`Error updating Call: ${err}`);
             res.status(500).json({ message: "Error updating Call", error: err });
         }
+    },
+    async deleteEvent(req, res) {
+        try {
+            const result = await Events.deleteOne({ callID: req.params.id });
+            if (result.deletedCount > 0) {
+                infoLogger.info(`Event deleted successfully: ${req.params.id}`);
+                res.json({ "message": "Event deleted successfully" });
+            } else {
+                errorLogger.error(`Event not found: ${req.params.id}`);
+                res.status(404).json({ "message": "Event not found" });
+            }
+        } catch (err) {
+            errorLogger.error(`Error deleting event: ${err}`);
+            res.status(500).json({ "message": "Error deleting event", error: err });
+        }
     }  
 };
 
