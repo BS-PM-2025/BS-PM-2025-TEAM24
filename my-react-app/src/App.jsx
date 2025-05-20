@@ -7,7 +7,7 @@ import ForgotPassword from './screens/ForgotPassword.jsx';
 import Login from './screens/Login.jsx';
 import ProfilePage from './screens/ProfilePage.jsx'; 
 import UserManagement from './screens/UserManagement.jsx'; 
-
+import CustomerMain from './screens/CustomerMain.jsx'; 
 
 
 
@@ -23,7 +23,7 @@ function App() {
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/ProfilePage" element={<ProfilePage />} />
         <Route path="/UserManagement" element={<UserManagement />} />
-        
+        <Route path="/CustomerMain" element={<CustomerMain />} />
       </Routes>
     </Router>
   );
