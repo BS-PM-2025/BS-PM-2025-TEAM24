@@ -10,6 +10,7 @@ import UserManagement from './screens/UserManagement.jsx';
 import CustomerMain from './screens/CustomerMain.jsx'; 
 import WorkerMain from './screens/WorkerMain.jsx'; 
 import HelpPage from './screens/HelpPage.jsx'; 
+import AdminMain from './screens/AdminMain.jsx'; 
 
 
 
@@ -27,6 +28,7 @@ function App() {
         <Route path="/CustomerMain" element={<CustomerMain />} />
         <Route path="/WorkerMain" element={<WorkerMain />} />
         <Route path="/HelpPage" element={<HelpPage />} />
+        <Route path="/AdminMain" element={<AdminMain />} />
       </Routes>
     </Router>
   );
