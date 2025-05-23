@@ -193,7 +193,21 @@ const styles = {
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
     textAlign: 'center',
   },
-  
+  starsContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginBottom: '1.5rem',
+    gap: '0.5rem',
+  },
+  star: {
+    cursor: 'pointer',
+    fontSize: '2rem',
+    color: '#ccc',
+    transition: 'color 0.2s ease',
+  },
+  activeStar: {
+    color: '#ffc107',
+  },
   ratingTitle: {
     fontSize: '2rem',
     color: '#4a6fa5', // darker blue to match header/logo
@@ -217,6 +231,36 @@ const styles = {
     cursor: 'pointer',
     transition: 'background 0.3s ease',
     opacity: 1
+  },
+  averageRating: {
+    textAlign: 'center',
+    margin: '1.5rem 0',
+    fontSize: '1.2rem',
+    color: '#4a6fa5',
+    fontWeight: 'bold',
+  },
+  ratingList: {
+    maxHeight: '300px',
+    overflowY: 'auto',
+    backgroundColor: '#f9f9f9',
+    padding: '1rem',
+    borderRadius: '8px',
+    border: '1px solid #ddd',
+  },
+  ratingItem: {
+    marginBottom: '1rem',
+    paddingBottom: '1rem',
+    borderBottom: '1px solid #eee',
+    fontSize: '1.2rem',
+  },
+  ratingUser: {
+    fontWeight: 'bold',
+    color: '#4a6fa5',
+  },
+  ratingDate: {
+    fontSize: '1rem',
+    color: '#777',
+    marginTop: '0.3rem',
   },
   mapModal: (showMap) => ({
     display: showMap ? 'block' : 'none',
@@ -376,6 +420,26 @@ export default function CustomerMain() {
       setAverageRating(avg || 0);
     } catch (err) {
       console.error("Error fetching ratings:", err);
+    }
+  };
+  const handleDeleteRating = async (id) => {
+    const storedUser = JSON.parse(localStorage.getItem('userData'));
+    if (!storedUser?.accessToken) return;
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/ratings/deleteRating/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-access-token': storedUser.accessToken }
+      });
+      if (!res.ok) throw new Error((await res.json()).message);
+
+      const updated = ratings.filter((r) => r._id !== id);
+      setRatings(updated);
+      const avg = updated.reduce((s, r) => s + Number(r.rating), 0) / (updated.length || 1);
+      setAverageRating(avg || 0);
+      alert('Rating deleted ✅');
+    } catch (e) {
+      alert('Delete failed: ' + e.message);
     }
   };
   useEffect(() => {
@@ -832,63 +896,83 @@ export default function CustomerMain() {
             )}
             {/* Rating Section */}
             <div style={styles.ratingContainer}>
-                <h3 style={styles.ratingTitle}>Rate Your Experience</h3>
-                <div style={styles.stars}>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                        key={star}
-                        onClick={() => setRating(star)}
-                        style={{
-                        cursor: 'pointer',
-                        fontSize: '1.8rem',
-                        color: star <= rating ? '#ffc107' : '#ccc',
-                        transition: 'color 0.2s ease'
-                        }}
-                    >
-                        ★
-                    </span>
-                    ))}
-                </div>
-                <button
-                    style={styles.submitRatingBtn}
-                    onClick={handleRatingSubmit}
-                  >
-                    Submit
-                </button>
-                {/* Average Rating */}
-                {ratings.length > 0 && (
-                <div style={{ marginTop: '1rem', color: '#4a6fa5', fontWeight: 'bold', fontSize: '1.2rem' }}>
-                    Overall Rating: {averageRating.toFixed(1)} / 5 ★
-                </div>
-                )}
+              <h3 style={styles.ratingTitle}>Rate Your Experience</h3>
 
-                {/* Rating List Scrollbox */}
-                {ratings.length > 0 && (
-                <div style={{
-                    marginTop: '1rem',
-                    maxHeight: '150px',
-                    overflowY: 'auto',
-                    backgroundColor: '#f9f9f9',
-                    padding: '1rem',
-                    borderRadius: '8px',
-                    border: '1px solid #ccc',
-                    textAlign: 'left'
-                }}>
-                    {ratings.map((entry, idx) => {
-                      const date = new Date(entry.date);
-                      const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+              {/* Stars picker */}
+              <div style={styles.starsContainer}>
+                {[1, 2, 3, 4, 5].map((star) =>
+                  star <= rating ? (
+                    <FaStar
+                      key={star}
+                      onClick={() => setRating(star)}
+                      style={{ ...styles.star, ...styles.activeStar }}
+                    />
+                  ) : (
+                    <FaRegStar
+                      key={star}
+                      onClick={() => setRating(star)}
+                      style={styles.star}
+                    />
+                  )
+                )}
+              </div>
+
+              <button style={styles.submitRatingBtn} onClick={handleRatingSubmit}>
+                Submit Rating
+              </button>
+
+              {ratings.length > 0 && (
+                <>
+                  {/* Average */}
+                  <div style={styles.averageRating}>
+                    Overall Rating: {averageRating.toFixed(1)} / 5 ★
+                  </div>
+
+                  {/* List */}
+                  <div style={styles.ratingList}>
+                    <h4>Recent Ratings</h4>
+                    {ratings.map((entry) => {
+                      const date = new Date(entry.date).toLocaleDateString('en-GB');
+                      const user = JSON.parse(localStorage.getItem('userData'));
+                      const isOwner =
+                        user?.name?.toLowerCase() ===
+                        entry.username?.toLowerCase();
 
                       return (
-                        <div key={idx} style={{ marginBottom: '0.8rem' }}>
-                          <strong>{entry.username} ( {entry.usertype} )</strong> :: {'★'.repeat(entry.rating)}{'☆'.repeat(5 - entry.rating)}
-                          <div style={{ fontSize: '0.85rem', color: '#555', marginLeft: '1rem' }}>
-                            {formattedDate}
+                        <div key={entry._id} style={styles.ratingItem}>
+                          <div style={styles.ratingUser}>
+                            {entry.username} ({entry.usertype}) –{' '}
+                            {'★'.repeat(entry.rating)}
+                          </div>
+
+                          <div
+                            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                          >
+                            <span style={styles.ratingDate}>{date}</span>
+
+                            {isOwner && (
+                              <button
+                                onClick={() => handleDeleteRating(entry._id)}
+                                style={{
+                                  background: '#dc3545',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: 4,
+                                  padding: '4px 8px',
+                                  fontSize: 12,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Delete
+                              </button>
+                            )}
                           </div>
                         </div>
                       );
                     })}
-                </div>
-                )}
+                  </div>
+                </>
+              )}
             </div>
         </div>
     </div>
