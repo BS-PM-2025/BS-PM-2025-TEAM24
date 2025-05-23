@@ -117,7 +117,36 @@ const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const [userStats, setUserStats] = useState({ total: 0, admins: 0, workers: 0, customers: 0 });
 
+  useEffect(() => {
+    const fetchStats = async () => {
+      const user = JSON.parse(localStorage.getItem('userData'));
+      if (!user || !user.accessToken) {
+        alert('Not authorized. Please log in again.');
+        return;
+      }
+      try {
+        const response = await fetch('http://localhost:8000/api/users/userStats', {
+          headers: {
+            'x-access-token': user.accessToken,
+            'Content-Type': 'application/json'
+          }
+        });
+        const stats = await response.json();
+        
+        if (response.ok) {
+          setUserStats(stats);
+        } else {
+          alert('Failed to fetch stats.');
+        }
+      } catch (err) {
+        alert("Error fetching user stats"+ err);
+      }
+    };
+
+    fetchStats();
+  }, []);
   const fetchUsers = async () => {
     const user = JSON.parse(localStorage.getItem('userData'));
     if (!user || !user.accessToken) {
@@ -247,6 +276,27 @@ const UsersList = () => {
         {/* Table container on the right */}
         <div style={{ flex: 1 }}>
           <h1 style={{ textAlign: 'center' }}>Users List</h1>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '2rem',
+            backgroundColor: '#f0f4fa',   // very light blue
+            padding: '10px 20px',
+            borderRadius: '8px',
+            fontWeight: 'bold',
+            color: '#375a8c',
+            fontSize: '1.2rem',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+            width: '100%',
+            maxWidth: '800px',
+            margin: '30px auto'
+          }}>
+            <span>Total Users: {userStats.total}</span>
+            <span>||&nbsp; &nbsp; Admins: {userStats.admins}</span>
+            <span>||&nbsp; &nbsp; Workers: {userStats.workers}</span>
+            <span>||&nbsp; &nbsp; Customers: {userStats.customers}</span>
+          </div>
           <table style={tableStyle}>
             <thead>
               <tr>

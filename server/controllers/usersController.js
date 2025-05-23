@@ -118,4 +118,27 @@ exports.usersController = {
             res.status(500).json({ message: "Internal server error" });
         }
     },
+    async getUserStats(req, res) {
+        try {
+            const users = await User.find();
+
+            console.log("✅ users:", users);
+
+            const total = users.length;
+            const admins = users.filter(u => u.isAdmin).length;
+            const workers = users.filter(u => u.isWorker && !u.isAdmin).length;
+            const customers = users.filter(u => !u.isAdmin && !u.isWorker).length;
+
+            console.log("✅ total:", total);
+            console.log("✅ admins:", admins);
+            console.log("✅ workers:", workers);
+            console.log("✅ customers:", customers);
+
+            res.json({ total, admins, workers, customers });
+        } catch (err) {
+            console.error("Error getting user stats:", err);
+            res.status(500).json({ error: 'Failed to retrieve user stats' });
+        }
+    }
+
 }
