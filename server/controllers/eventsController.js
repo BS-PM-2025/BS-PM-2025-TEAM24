@@ -118,6 +118,48 @@ exports.eventsController = {
             errorLogger.error(`Error deleting event: ${err}`);
             res.status(500).json({ "message": "Error deleting event", error: err });
         }
+    },
+    async getLocationDetails(req, res) {
+        try {
+            const { lat, lng } = req.body;
+            if (!lat || !lng) {
+            return res.status(400).json({ message: "Missing coordinates" });
+            }
+
+            const [heData, enData] = await Promise.all([
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=20&addressdetails=1&extratags=1&namedetails=1`).then(r => r.json()),
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=20&addressdetails=1&extratags=1&namedetails=1`).then(r => r.json())
+            ]);
+
+            const extract = (data) => {
+            const a = data.address;
+            const city = a.city || a.town || a.village || a.state_district || a.state ;
+            const street = a.road || a.street || a.pedestrian || a.footway || a.neighbourhood || "";
+            const houseNumber = a.house_number || a.housenumber || "";
+            console.log("🧭 Address Fields:", a);
+
+            return { city, street, houseNumber };
+            };
+
+            const he = extract(heData);
+            const en = extract(enData);
+
+            const fullCity = `${he.city}, ${heData.address.country} | ${en.city}, ${enData.address.country}`;
+            const finalStreet = (he.street && he.street.trim())  ? he.street
+            : (en.street && en.street.trim()) ? en.street
+            : "";
+            const finalHouseNumber = he.houseNumber || en.houseNumber || "";
+
+            return res.status(200).json({
+            city: fullCity,
+            street: finalStreet,
+            houseNumber: finalHouseNumber
+            });
+
+        } catch (err) {
+            console.error("❌ Error reverse-geocoding location:", err);
+            return res.status(500).json({ message: "Failed to get location details", error: err.message });
+        }
     }  
 };
 
