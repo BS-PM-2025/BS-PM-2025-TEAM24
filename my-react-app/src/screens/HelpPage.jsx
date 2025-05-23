@@ -32,13 +32,14 @@ const styles = {
   logo: {
     display: 'flex',
     alignItems: 'center',
-    fontSize: '1.8rem',
-    fontWeight: 'bold',
+    fontSize: '2rem',
+    fontWeight: '900',
+    color: 'white'
   },
   logoImage: {
-    width: '40px',
-    height: '40px',
-    marginRight: '10px',
+    width: '50px',
+    height: '50px',
+    marginRight: '14px',
   },
   logoHighlight: {
     color: '#ffde59',
@@ -51,18 +52,22 @@ const styles = {
     borderRadius: '8px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     maxHeight: 'calc(100vh - 6rem)',
-    overflow: 'hidden',
+    overflow: 'auto',
   },
   sectionTitle: {
     color: '#4a6fa5',
-    fontSize: '1.5rem',
+    fontSize: '2.2rem',
     marginBottom: '1rem',
     marginTop: '0.5rem',
   },
-  paragraph: {
-    lineHeight: 2,
+  bulletItem: {
+    display: 'flex',
+    alignItems: 'start',
+    gap: '0.6rem',
+    marginBottom: '0.7rem',
     color: '#333',
-    marginBottom: '1.5rem',
+    fontSize: '1.35rem',
+    lineHeight: 1.6,
   },
   menuIcon: {
     fontSize: '1.6rem',
@@ -77,21 +82,21 @@ const styles = {
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     maxWidth: '200px',
     minWidth: '150px',
-    padding: '2rem 1rem', // ↑ increase top/bottom padding
+    padding: '2rem 1rem',
     overflow: 'hidden',
     zIndex: 2000,
   },
-  menuItem: {
+   menuItem: {
     display: 'flex',
     alignItems: 'center',
-    padding: '1rem 1.4rem',
-    gap: '0.75rem',
+    padding: '0.4rem 0.8rem',
     fontSize: '1rem',
-    color: '#333',
-    backgroundColor: 'white',
+    color: 'white',
+    backgroundColor: 'transparent',
     cursor: 'pointer',
-    borderBottom: '1px solid #eee',
-    transition: 'background 0.2s ease',
+    borderRadius: '6px',
+    transition: 'background 0.3s ease',
+    gap: '0.5rem'
   },
   activeMenuItem: {
     backgroundColor: 'white',
@@ -114,54 +119,39 @@ const styles = {
 export default function HelpPage() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [userData, setUserData] = useState({
-    userType: '',
-    _id: ''
-  });
+  const [userData, setUserData] = useState({ userType: '', _id: '' });
+
   useEffect(() => {
-      const fetchUserData = async () => {
-        try {
-          const storedUser = JSON.parse(localStorage.getItem('userData'));
-          if (!storedUser || !storedUser.accessToken) {
-            navigate('/login');
-            return;
-          }
-  
-          const response = await fetch(`http://localhost:8000/api/users/${storedUser.id}`, {
-            headers: {
-              'x-access-token': storedUser.accessToken
-            }
-          });
-  
-          if (!response.ok) {
-            throw new Error('Failed to fetch user data');
-          }
-  
-          const data = await response.json();
-  
-          setUserData({
-            userType: data.isAdmin ? 'Admin' : data.isWorker ? 'Worker' : 'Customer',
-            _id: data._id || ''
-          });
-        } catch (err) {
-          setError(err.message);
-        } finally {
-          setLoading(false);
+    const fetchUserData = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('userData'));
+        if (!storedUser || !storedUser.accessToken) {
+          navigate('/login');
+          return;
         }
-      };
-      fetchUserData();
-    }, [navigate]);
+        const response = await fetch(`http://localhost:8000/api/users/${storedUser.id}`, {
+          headers: { 'x-access-token': storedUser.accessToken }
+        });
+        if (!response.ok) throw new Error('Failed to fetch user data');
+        const data = await response.json();
+        setUserData({
+          userType: data.isAdmin ? 'Admin' : data.isWorker ? 'Worker' : 'Customer',
+          _id: data._id || ''
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchUserData();
+  }, [navigate]);
+
   const handleMenuSelect = (option) => {
     setMenuOpen(false);
-    if (option === 'MainPage'){
-      if (userData.userType=='Worker')
-       navigate('/WorkerMain');
-      else if(userData.userType=='Admin')
-        navigate('/UserManagement');
-      else if(userData.userType=='Customer')
-        navigate('/CustomerMain');
-    }
-    else if (option === 'MyWorks') navigate('/MyWorks');
+    if (option === 'MainPage') {
+      if (userData.userType === 'Worker') navigate('/WorkerMain');
+      else if (userData.userType === 'Admin') navigate('/UserManagement');
+      else if (userData.userType === 'Customer') navigate('/CustomerMain');
+    } else if (option === 'MyWorks') navigate('/MyWorks');
     else if (option === 'MyCalls') navigate('/MyCalls');
     else if (option === 'Profile') navigate('/ProfilePage');
     else if (option === 'Help') navigate('/HelpPage');
@@ -170,6 +160,7 @@ export default function HelpPage() {
       navigate('/login');
     }
   };
+
   return (
     <div style={styles.container}>
       <header style={{ ...styles.header, justifyContent: 'space-between' }}>
@@ -250,26 +241,32 @@ export default function HelpPage() {
 
       <div style={styles.content}>
         <h2 style={styles.sectionTitle}>Welcome to HouseFix!</h2>
-        <p style={styles.paragraph}>
-          HouseFix helps you connect with local service providers or find work as one,
-          Whether you’re a customer or a worker. <br /> Here’s how to make the most of the platform:
-        </p>
+        <p style={styles.bulletItem}><FaCheckCircle color="#4a6fa5" size={18} style={{ flexShrink: 0, marginTop: '4px' }} />
+               <span>HouseFix helps you connect with local service providers or find work as one. Whether you’re a customer or a worker, here’s how to make the most of the platform:</span></p>
 
         <h2 style={styles.sectionTitle}>For Customers</h2>
-        <p style={styles.paragraph}>
-          - Open a new call about what you want to fix in your house by clicking the "Open Call" button in the "MainPage".<br />
-          - View call history and track status via the "MyCalls" page.<br />
-          - Review worker requests and pick based on their location or details.<br />
-          - Manage your profile and password through the "Profile" page.
-        </p>
+        <div>
+          <div style={styles.bulletItem}><FaCheckCircle color="#4a6fa5" size={18} style={{ flexShrink: 0, marginTop: '4px' }} />
+              <span>Open a new call about what you want to fix in your house by clicking the "Open Call" button in the "MainPage".</span></div>
+          <div style={styles.bulletItem}><FaCheckCircle color="#4a6fa5" size={18} style={{ flexShrink: 0, marginTop: '4px' }} />
+              <span>View call history and track status via the "MyCalls" page.</span></div>
+          <div style={styles.bulletItem}><FaCheckCircle color="#4a6fa5" size={18} style={{ flexShrink: 0, marginTop: '4px' }} />
+             <span>Review worker requests and pick based on their location or details.</span></div>
+          <div style={styles.bulletItem}><FaCheckCircle color="#4a6fa5" size={18} style={{ flexShrink: 0, marginTop: '4px' }} />
+             <span>Manage your profile and password through the "Profile" page.</span></div>
+        </div>
 
         <h2 style={styles.sectionTitle}>For Workers</h2>
-        <p style={styles.paragraph}>
-          - Browse open calls in the "MainPage" and accept jobs matching your work type.<br />
-          - Track accepted or completed jobs in "MyWork".<br />
-          - Update your profile or password in the "Profile" page.<br />
-          - Add a personal description so customers know who they're working with.
-        </p>
+        <div>
+          <div style={styles.bulletItem}><FaCheckCircle color="#4a6fa5" size={18} style={{ flexShrink: 0, marginTop: '4px' }} />
+              <span>Browse open calls in the "MainPage" and accept jobs matching your work type.</span></div>
+          <div style={styles.bulletItem}><FaCheckCircle color="#4a6fa5" size={18} style={{ flexShrink: 0, marginTop: '4px' }} />
+               <span>Track accepted or completed jobs in "MyWork".</span></div>
+          <div style={styles.bulletItem}><FaCheckCircle color="#4a6fa5" size={18} style={{ flexShrink: 0, marginTop: '4px' }} />
+              <span>Update your profile or password in the "Profile" page.</span></div>
+          <div style={styles.bulletItem}><FaCheckCircle color="#4a6fa5" size={18} style={{ flexShrink: 0, marginTop: '4px' }} />
+             <span>Add a personal description so customers know who they're working with.</span></div>
+        </div>
       </div>
     </div>
   );
