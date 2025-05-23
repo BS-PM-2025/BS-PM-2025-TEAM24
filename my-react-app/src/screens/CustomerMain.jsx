@@ -964,7 +964,7 @@ export default function CustomerMain() {
         </div>
       </div>
 
-      {/* Open Call Modal */}
+      {/*the signup address loads automaticly at the rigth field when openning the cal popup*/}
       {showModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
