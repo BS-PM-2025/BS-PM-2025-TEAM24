@@ -6,7 +6,7 @@ const eventsRouter = new Router();
 eventsRouter.get('/getEvents', eventsController.getEvents);
 eventsRouter.get('/getEventsByType/:callType', eventsController.getEventsByType);
 eventsRouter.post('/addEvent', eventsController.addEvent); // Note: Adjusted route for adding an event
-eventsRouter.put('/updateEvent/:callID', eventsController.updateEvent);
 eventsRouter.delete('/deleteEvent/:id', eventsController.deleteEvent);
-
+eventsRouter.put('/updateEvent/:callID', eventsController.updateEvent);
+eventsRouter.post('/getLocationDetails', eventsController.getLocationDetails);
 module.exports = { eventsRouter };
