@@ -41,7 +41,12 @@ const Login = () => {
 
       console.log('✅ Login success as', role);
       localStorage.setItem('userData', JSON.stringify(data));
-      navigate("/ProfilePage");
+      if (data.isWorker)
+        navigate("/WorkerMain");
+      else if (data.isAdmin)
+        navigate("/AdminMain");
+      else if (!data.isAdmin&&!data.isWorker)
+        navigate("/CustomerMain");
     } catch (err) {
       console.error("Login error:", err);
       alert("A network error occurred. Please check your connection and try again.");
