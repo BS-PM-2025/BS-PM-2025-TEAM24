@@ -17,6 +17,7 @@ const styles = {
     left: 0,
     display: 'flex',
     flexDirection: 'column',
+    overflowY: 'auto',
   },
   header: {
     backgroundColor: 'rgba(74, 111, 165, 0.9)',
@@ -43,33 +44,16 @@ const styles = {
   logoHighlight: {
     color: '#ffde59',
   },
-  menuIcon: {
-    fontSize: '1.6rem',
-    cursor: 'pointer',
-    marginLeft: '1.5rem',
-  },
-  dropdown: {
-    position: 'absolute',
-    top: '60px',
-    right: '-28px',
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-    width: '180px',
-    padding: '2rem 1rem', // ↑ increase top/bottom padding
-    zIndex: 2000,
-    overflow: 'hidden',
-  },
-  menuItem: {
+   menuItem: {
     display: 'flex',
     alignItems: 'center',
-    padding: '1rem',
+    padding: '0.4rem 0.8rem',
     fontSize: '1rem',
-    color: '#333',
-    backgroundColor: 'white',
+    color: 'white',
+    backgroundColor: 'transparent',
     cursor: 'pointer',
-    borderBottom: '1px solid #eee',
-    transition: 'background 0.2s ease',
+    borderRadius: '6px',
+    transition: 'background 0.3s ease',
     gap: '0.5rem'
   },
   activeMenuItem: {
@@ -92,6 +76,7 @@ const styles = {
     fontSize: '2rem',
     marginBottom: '1rem',
     color: '#4a6fa5',
+    fontWeight: 'bold',
   },
   paragraph: {
     fontSize: '1.1rem',
@@ -99,79 +84,107 @@ const styles = {
     marginBottom: '2rem',
     lineHeight: 1.8,
   },
-  openCallButton: {
-    padding: '12px 24px',
-    fontSize: '1.1rem',
-    backgroundColor: '#4a6fa5',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    cursor: 'pointer',
-  },
-  modalOverlay: {
-    position: 'fixed',
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 2000
-  },
-  modal: {
-    backgroundColor: 'white',
-    padding: '2rem',
-    borderRadius: '8px',
-    width: '90%',
-    maxWidth: '500px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-  },
-  modalTitle: {
-    fontSize: '1.5rem',
-    marginBottom: '1rem',
-    color: '#4a6fa5'
-  },
-  input: {
-    width: '100%',
-    padding: '10px',
-    marginBottom: '1rem',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
-  },
-  submitBtn: {
-    padding: '10px 20px',
-    backgroundColor: '#4a6fa5',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: '1rem'
-  },
   mainContentRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    flexWrap: 'wrap', // responsive for small screens
-    padding: '4rem 5%',
+    flexWrap: 'wrap',
+    padding: '2rem 5%',
     gap: '2rem',
-    alignItems: 'stretch',  // ⬅️ ensures both boxes align in height
-
+    alignItems: 'stretch',
+    width:'75%',
+    margin: '0 auto',
   },
-  contentBox: {
-    flex: '1 1 45%',
+  callsContainer: {
+    flex: '1 1 60%',
     minWidth: '300px',
-    padding: '4rem',
+    padding: '2rem',
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center',
+  },
+  callsHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '1.5rem',
+  },
+  callsTitle: {
+    fontSize: '1.8rem',
+    color: '#4a6fa5',
+    fontWeight: 'bold',
+    textAlign:'center'
+  },
+  searchContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: '20px',
+    padding: '0.5rem 1rem',
+  },
+  searchInput: {
+    border: 'none',
+    background: 'transparent',
+    outline: 'none',
+    marginLeft: '0.5rem',
+    width: '200px',
+  },
+  callCard: {
+    padding: '1.5rem',
+    marginBottom: '1.5rem',
+    backgroundColor: '#ffffff',
+    borderRadius: '10px',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    borderLeft: '4px solid #4a6fa5',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    cursor: 'pointer',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    },
+  },
+  callType: {
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+    color: '#4a6fa5',
+    marginBottom: '0.5rem',
+  },
+  callDetail: {
+    display: 'flex',
+    marginBottom: '0.5rem',
+    fontSize: '1.2rem',
+  },
+  detailLabel: {
+    fontWeight: 'bold',
+    minWidth: '100px',
+    color: '#555',
+  },
+  acceptButton: {
+    padding: '0.5rem 1.5rem',
+    backgroundColor: '#4a6fa5',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    marginTop: '1rem',
+    transition: 'background 0.3s ease',
+    '&:hover': {
+      backgroundColor: '#375a8c',
+    },
   },
   ratingContainer: {
     flex: '1 1 35%',
     minWidth: '300px',
-    padding: '1rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    padding: '2rem',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+  },
+  ratingTitle: {
+    fontSize: '1.8rem',
+    color: '#4a6fa5',
+    fontWeight: 'bold',
+    marginBottom: '1.5rem',
     textAlign: 'center',
   },
   starsContainer: {
@@ -180,17 +193,29 @@ const styles = {
     marginBottom: '1.5rem',
     gap: '0.5rem',
   },
-  ratingTitle: {
+  star: {
+    cursor: 'pointer',
     fontSize: '2rem',
-    color: '#4a6fa5', // darker blue to match header/logo
-    marginBottom: '1rem'
+    color: '#ccc',
+    transition: 'color 0.2s ease',
   },
-  stars: {
-    display: 'flex',
-    justifyContent: 'center',
-    color: '#375a8c',  // darker blue
-    marginBottom: '1rem',
-    gap: '10px'
+  activeStar: {
+    color: '#ffc107',
+  },
+  submitRatingBtn: {
+    display: 'block',
+    margin: '0 auto',
+    padding: '0.8rem 2rem',
+    backgroundColor: '#4a6fa5',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    fontSize: '1rem',
+    cursor: 'pointer',
+    transition: 'background 0.3s ease',
+    '&:hover': {
+      backgroundColor: '#375a8c',
+    },
   },
   averageRating: {
     textAlign: 'center',
@@ -216,45 +241,24 @@ const styles = {
   ratingUser: {
     fontWeight: 'bold',
     color: '#4a6fa5',
+    
   },
   ratingDate: {
     fontSize: '1rem',
     color: '#777',
     marginTop: '0.3rem',
   },
-  star: {
-    cursor: 'pointer',
-    fontSize: '2rem',
-    color: '#ccc',
-    transition: 'color 0.2s ease',
-  },
-  activeStar: {
-    color: '#ffc107',
-  },
-  submitRatingBtn: {
-    marginTop: '1.2rem',
-    padding: '10px 20px',
-    backgroundColor: '#4a6fa5',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '1rem',
-    cursor: 'pointer',
-    transition: 'background 0.3s ease',
-    opacity: 1
-  }
 };
 
 export default function CustomerMain() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [userName, setUserName] = useState('');
-  const [formData, setFormData] = useState({ title: '', description: '', location: '' });
   const [rating, setRating] = useState(0);
   const [ratings, setRatings] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
   const [calls, setCalls] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchRatings = async () => {
     const storedUser = JSON.parse(localStorage.getItem("userData"));
@@ -288,7 +292,7 @@ export default function CustomerMain() {
       console.error("Error fetching ratings:", err);
     }
   };
-   const handleDeleteRating = async (id) => {
+ const handleDeleteRating = async (id) => {
     const storedUser = JSON.parse(localStorage.getItem('userData'));
     if (!storedUser?.accessToken) return;
 
@@ -361,7 +365,6 @@ export default function CustomerMain() {
         alert("Thanks for your rating!");
         setRating(0);
     
-        // Fetch updated ratings safely
         try {
           const refreshed = await fetch("http://localhost:8000/api/ratings/getAllRatings", {
             headers: {
@@ -382,7 +385,6 @@ export default function CustomerMain() {
       alert("Error submitting rating");
       console.error(err);
     }
-    
   };
   
   const fetchCallsByType = async () => {
@@ -392,14 +394,11 @@ export default function CustomerMain() {
       return;
     }
 
-    if (storedUser.workType=='Plumber')
-      var type='Plumbing';
-    else if (storedUser.workType=='Electrician')
-      var type='Electricity';
-    else if (storedUser.workType=='Painter')
-      var type='Painting';
-    else if (storedUser.workType=='Handy Man')
-      var type='Other';
+    let type;
+    if (storedUser.workType === 'Plumber') type = 'Plumbing';
+    else if (storedUser.workType === 'Electrician') type = 'Electricity';
+    else if (storedUser.workType === 'Painter') type = 'Painting';
+    else if (storedUser.workType === 'Handy Man') type = 'Other';
 
     try {
       const response = await fetch(`http://localhost:8000/api/events/getEventsByType/${type}`, {
@@ -412,7 +411,7 @@ export default function CustomerMain() {
       const result = await response.json();
   
       if (response.ok) {
-        setCalls(result); // Save calls to render them
+        setCalls(result);
       } else {
         alert("❌ Failed to fetch calls: " + result.message);
       }
@@ -421,11 +420,17 @@ export default function CustomerMain() {
       alert("An unexpected error occurred while fetching the calls.");
     }
   };
-  
+
+  const filteredCalls = calls.filter(call => 
+    call.callType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    call.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    call.costumerdetails.join(' ').toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div style={styles.container}>
-      <header style={{ ...styles.header, justifyContent: 'space-between' }}>
+  <div style={styles.container}>
+    {/* ──────────────── HEADER ──────────────── */}
+    <header style={{ ...styles.header, justifyContent: 'space-between' }}>
       {/* Left – Logo */}
       <div style={styles.logo}>
         <img src={logo} alt="Logo" style={styles.logoImage} />
@@ -487,128 +492,126 @@ export default function CustomerMain() {
         MainPage
       </div>
     </header>
-      <div style={styles.mainContentRow}>
-        <div style={styles.contentBox}>
-            <h2 style={styles.welcome}>Welcome {userName}!</h2>
-            <p style={styles.paragraph}>
-            Here you can see al the Calls that belongs to your work type, ypu can accept any call you want and wait for the customer respond:             
-            </p>
 
-            <div style={{
-              maxHeight: '300px',
-              overflowY: 'auto',
-              marginTop: '1rem',
-              padding: '1rem',
-              border: '1px solid #ccc',
-              borderRadius: '8px',
-              backgroundColor: '#f9f9f9'
-            }}>
-              {calls.length === 0 ? (
-                <p>No calls available for your work type.</p>
-              ) : (
-                calls.map((call) => (
-                  <div key={call.callID} style={{
-                    padding: '0.75rem',
-                    marginBottom: '1rem',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #ddd',
-                    borderRadius: '6px'
-                  }}>
-                    <strong>Call Type:</strong> {call.callType}<br />
-                    <strong>Description:</strong> {call.description}<br />
-                    <strong>Customer:</strong> {call.costumerdetails.join(', ')}<br />
-                    <strong>Address:</strong> {call.city}, {call.street} {call.houseNumber}<br />
-                    <strong>Date:</strong> {new Date(call.date).toLocaleDateString()}
-                  </div>
-                ))
-              )}
-            </div>
+    {/* ──────────────── MAIN ROW ──────────────── */}
+    <div style={styles.mainContentRow}>
+      {/* Calls section */}
+      <div style={styles.callsContainer}>
+        <h2 style={styles.ratingTitle}>Available Calls</h2>
 
-            <p style={styles.paragraph}>
-            <br />If you want to see an explaination about the website <a href="#" onClick={() => navigate('/HelpPage')}>Click Here</a>  
-            </p>
-        </div>
-            {/* Rating Section */}
-            <div style={styles.ratingContainer}>
-              <h3 style={styles.ratingTitle}>Rate Your Experience</h3>
-
-              {/* Stars picker */}
-              <div style={styles.starsContainer}>
-                {[1, 2, 3, 4, 5].map((star) =>
-                  star <= rating ? (
-                    <FaStar
-                      key={star}
-                      onClick={() => setRating(star)}
-                      style={{ ...styles.star, ...styles.activeStar }}
-                    />
-                  ) : (
-                    <FaRegStar
-                      key={star}
-                      onClick={() => setRating(star)}
-                      style={styles.star}
-                    />
-                  )
-                )}
+        {filteredCalls.length === 0 ? (
+          <p>No calls available for your work type.</p>
+        ) : (
+          filteredCalls.map((call) => (
+            <div key={call.callID} style={styles.callCard}>
+              <div style={styles.callDetail}>
+                <span style={styles.detailLabel}>Call Type:</span>
+                <span>{call.callType}</span>
               </div>
-
-              <button style={styles.submitRatingBtn} onClick={handleRatingSubmit}>
-                Submit Rating
-              </button>
-
-              {ratings.length > 0 && (
-                <>
-                  {/* Average */}
-                  <div style={styles.averageRating}>
-                    Overall Rating: {averageRating.toFixed(1)} / 5 ★
-                  </div>
-
-                  {/* List */}
-                  <div style={styles.ratingList}>
-                    <h4>Recent Ratings</h4>
-                    {ratings.map((entry) => {
-                      const date = new Date(entry.date).toLocaleDateString('en-GB');
-                      const user = JSON.parse(localStorage.getItem('userData'));
-                      const isOwner =
-                        user?.name?.toLowerCase() ===
-                        entry.username?.toLowerCase();
-
-                      return (
-                        <div key={entry._id} style={styles.ratingItem}>
-                          <div style={styles.ratingUser}>
-                            {entry.username} ({entry.usertype}) –{' '}
-                            {'★'.repeat(entry.rating)}
-                          </div>
-
-                          <div
-                            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                          >
-                            <span style={styles.ratingDate}>{date}</span>
-
-                            {isOwner && (
-                              <button
-                                onClick={() => handleDeleteRating(entry._id)}
-                                style={{
-                                  background: '#dc3545',
-                                  color: '#fff',
-                                  border: 'none',
-                                  borderRadius: 4,
-                                  padding: '4px 8px',
-                                  fontSize: 12,
-                                  cursor: 'pointer'
-                                }}
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
+              <div style={styles.callDetail}>
+                <span style={styles.detailLabel}>Description:</span>
+                <span>{call.description}</span>
+              </div>
+              <div style={styles.callDetail}>
+                <span style={styles.detailLabel}>Customer:</span>
+                <span>{call.costumerdetails.join(', ')}</span>
+              </div>
+              <div style={styles.callDetail}>
+                <span style={styles.detailLabel}>Address:</span>
+                <span>
+                  {call.city}, {call.street} {call.houseNumber}
+                </span>
+              </div>
+              <div style={styles.callDetail}>
+                <span style={styles.detailLabel}>Date:</span>
+                <span>{new Date(call.date).toLocaleDateString()}</span>
+              </div>
             </div>
+          ))
+        )}
+      </div>
+
+      {/* Rating section */}
+      <div style={styles.ratingContainer}>
+        <h3 style={styles.ratingTitle}>Rate Your Experience</h3>
+
+        {/* Stars picker */}
+        <div style={styles.starsContainer}>
+          {[1, 2, 3, 4, 5].map((star) =>
+            star <= rating ? (
+              <FaStar
+                key={star}
+                onClick={() => setRating(star)}
+                style={{ ...styles.star, ...styles.activeStar }}
+              />
+            ) : (
+              <FaRegStar
+                key={star}
+                onClick={() => setRating(star)}
+                style={styles.star}
+              />
+            )
+          )}
         </div>
+
+        <button style={styles.submitRatingBtn} onClick={handleRatingSubmit}>
+          Submit Rating
+        </button>
+
+        {ratings.length > 0 && (
+          <>
+            {/* Average */}
+            <div style={styles.averageRating}>
+              Overall Rating: {averageRating.toFixed(1)} / 5 ★
+            </div>
+
+            {/* List */}
+            <div style={styles.ratingList}>
+              <h4>Recent Ratings</h4>
+              {ratings.map((entry) => {
+                const date = new Date(entry.date).toLocaleDateString('en-GB');
+                const user = JSON.parse(localStorage.getItem('userData'));
+                const isOwner =
+                  user?.name?.toLowerCase() ===
+                  entry.username?.toLowerCase();
+
+                return (
+                  <div key={entry._id} style={styles.ratingItem}>
+                    <div style={styles.ratingUser}>
+                      {entry.username} ({entry.usertype}) –{' '}
+                      {'★'.repeat(entry.rating)}
+                    </div>
+
+                    <div
+                      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                    >
+                      <span style={styles.ratingDate}>{date}</span>
+
+                      {isOwner && (
+                        <button
+                          onClick={() => handleDeleteRating(entry._id)}
+                          style={{
+                            background: '#dc3545',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 4,
+                            padding: '4px 8px',
+                            fontSize: 12,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
     </div>
-  );
+  </div>
+);
 }
