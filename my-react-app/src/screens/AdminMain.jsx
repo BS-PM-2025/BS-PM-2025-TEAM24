@@ -48,46 +48,34 @@ const styles = {
     cursor: 'pointer',
     marginLeft: '1.5rem',
   },
-  dropdown: {
-    position: 'absolute',
-    top: '60px',
-    right: '-28px',
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-    width: '180px',
-    padding: '2rem 1rem', // ↑ increase top/bottom padding
-    zIndex: 2000,
-    overflow: 'hidden',
-  },
   menuItem: {
     display: 'flex',
     alignItems: 'center',
-    padding: '1rem',
+    padding: '0.4rem 0.8rem',
     fontSize: '1rem',
-    color: '#333',
-    backgroundColor: 'white',
+    color: 'white',
+    backgroundColor: 'transparent',
     cursor: 'pointer',
-    borderBottom: '1px solid #eee',
-    transition: 'background 0.2s ease',
+    borderRadius: '6px',
+    transition: 'background 0.3s ease',
     gap: '0.5rem'
   },
   activeMenuItem: {
-    backgroundColor: 'white',
-    color: '#4a6fa5',
-    fontWeight: 'bold',
-    borderRadius: '999px',
-    padding: '0.4rem 1.2rem',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-  },
-  rightTitle: {
-    color: 'white',
-    fontSize: '2.1rem',
-    fontWeight: 'bold',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem'
-  },
+  backgroundColor: 'white',
+  color: '#4a6fa5',
+  fontWeight: 'bold',
+  borderRadius: '999px',
+  padding: '0.4rem 1.2rem',
+  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+},
+rightTitle: {
+  color: 'white',
+  fontSize: '2.1rem',
+  fontWeight: 'bold',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem'
+},
   welcome: {
     fontSize: '2rem',
     marginBottom: '1rem',
@@ -323,7 +311,8 @@ export default function CustomerMain() {
     }
   };
   
-const handleDeleteCall = async (callID) => {
+
+  const handleDeleteCall = async (callID) => {
     const storedUser = JSON.parse(localStorage.getItem('userData'));
     const shouldDelete = window.confirm('Are you sure you want to delete this call?');
     if (!shouldDelete) return;
