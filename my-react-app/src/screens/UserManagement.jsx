@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaUser, FaHome, FaSignOutAlt,FaInfoCircle,FaBars,FaUsers  } from 'react-icons/fa';
+import { FaUser, FaHome, FaSignOutAlt,FaInfoCircle,FaTools   } from 'react-icons/fa';
 import logo from '../assets/images/logo.png';
 import { useNavigate } from "react-router-dom";
 
@@ -43,24 +43,6 @@ const logoImage= {
 const logoHighlight= {
     color: '#ffde59'
   };
-const nav= {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1.5rem'
-  };
-const navLink= {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    textDecoration: 'none',
-    color: 'white',
-    fontWeight: 500,
-    transition: 'all 0.3s ease'
-  };
-const tabIcon= {
-  fontSize: '1rem',
-  width: '20px'
-};
 
 const tableStyle = {
   width: '100%',
@@ -129,6 +111,29 @@ const menuItem= {
   borderBottom: '1px solid #eee',
   transition: 'background 0.2s ease',
 };
+const activeMenuItem= {
+  backgroundColor: 'white',
+  color: '#4a6fa5',
+  fontWeight: 'bold',
+  borderRadius: '999px',
+  padding: '0.4rem 1.2rem',
+  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+};
+const rightTitle= {
+  color: 'white',
+  fontSize: '2.1rem',
+  fontWeight: 'bold',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem'
+};
+const logo2= {
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: '2rem',
+    fontWeight: '900',
+    color: 'white'
+  };
 
 const UsersList = () => {
   const [users, setUsers] = useState([]);
@@ -199,34 +204,59 @@ const UsersList = () => {
 
   return (
     <div style={container}>
-      <header style={header}>
-          <div style={Logo}>
-            <img src={logo} alt="Logo" style={logoImage} />
-            House<span style={logoHighlight}>Fix</span>
+      <header style={{ ...header, justifyContent: 'space-between' }}>
+        {/* Left: Logo */}
+        <div style={logo2}>
+          <img src={logo} alt="Logo" style={logoImage} />
+          House<span style={logoHighlight}>Fix</span>
+        </div>
+
+        {/* Center: Menu Items */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div
+            style={{
+              ...menuItem,
+              ...(location.pathname === '/CustomerMain' ? activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('MainPage')}
+          >
+            <FaHome /> MainPage
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
-            <h1 style={{ margin: 0 }}>
-              <FaUsers /> Users List
-            </h1>
-            <FaBars onClick={() => setMenuOpen(!menuOpen)} style={menuIcon} />
-            {menuOpen && (
-              <div style={dropdown}>
-                <div style={menuItem} onClick={() => handleMenuSelect('MainPage')}>
-                  <FaHome /> MainPage
-                </div>
-                <div style={menuItem} onClick={() => handleMenuSelect('UsersList')}>
-                  <FaUsers /> Users List
-                </div>
-                <div style={menuItem} onClick={() => handleMenuSelect('Profile')}>
-                  <FaUser /> Profile
-                </div>
-                <div style={menuItem} onClick={() => handleMenuSelect('Logout')}>
-                  <FaSignOutAlt /> Logout
-                </div>
-              </div>
-            )}
+          <div
+            style={{
+              ...menuItem,
+              ...(location.pathname === '/UserManagement' ? activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('UsersList')}
+          >
+            <FaTools /> Users List
           </div>
-        </header>
+          <div
+            style={{
+              ...menuItem,
+              ...(location.pathname === '/ProfilePage' ? activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('Profile')}
+          >
+            <FaUser /> Profile
+          </div>
+          <div
+            style={{
+              ...menuItem,
+              ...(location.pathname === '/login' ? activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('Logout')}
+          >
+            <FaSignOutAlt /> Logout
+          </div>
+        </div>
+
+        {/* Right: Page Title (e.g. MainPage) */}
+        <div style={rightTitle}>
+          <FaHome />
+          MainPage
+        </div>
+      </header>
       <main>
         <h1 style={{ textAlign: 'center' }}>Users List</h1>
         <table style={tableStyle}>

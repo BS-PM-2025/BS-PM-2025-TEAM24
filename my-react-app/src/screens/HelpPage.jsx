@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {FaTools, FaQuestionCircle, FaBars, FaUser, FaSignOutAlt, FaInfoCircle,FaHome  } from 'react-icons/fa';
+import { FaTools, FaQuestionCircle, FaBars, FaUser, FaSignOutAlt, FaInfoCircle, FaHome, FaCheckCircle } from 'react-icons/fa';
 import logo from '../assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
 
@@ -93,7 +93,22 @@ const styles = {
     borderBottom: '1px solid #eee',
     transition: 'background 0.2s ease',
   },
-  
+  activeMenuItem: {
+    backgroundColor: 'white',
+    color: '#4a6fa5',
+    fontWeight: 'bold',
+    borderRadius: '999px',
+    padding: '0.4rem 1.2rem',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+  },
+  rightTitle: {
+    color: 'white',
+    fontSize: '2.1rem',
+    fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
+  },
 };
 
 export default function HelpPage() {
@@ -157,45 +172,79 @@ export default function HelpPage() {
   };
   return (
     <div style={styles.container}>
-      <header style={styles.header}>
+      <header style={{ ...styles.header, justifyContent: 'space-between' }}>
+        {/* Left: Logo */}
         <div style={styles.logo}>
           <img src={logo} alt="Logo" style={styles.logoImage} />
           House<span style={styles.logoHighlight}>Fix</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
-          <h1 style={{ margin: 0 }}>
-            <FaQuestionCircle /> Help
-          </h1>
-          <FaBars onClick={() => setMenuOpen(!menuOpen)} style={styles.menuIcon} />
-            {menuOpen && (
-            <div style={styles.dropdown}>
-                <div style={styles.menuItem} onClick={() => handleMenuSelect('MainPage')}>
-                <FaHome /> MainPage
-                </div>
-                {/* Conditionally render menu items */}
-                {userData.userType === 'Worker' && (
-                  <div style={styles.menuItem} onClick={() => navigate('/MyWorks')}>
-                    <FaTools /> MyWorks
-                  </div>
-                )}
 
-                {userData.userType === 'Customer' && (
-                  <div style={styles.menuItem} onClick={() => navigate('/MyCalls')}>
-                    <FaTools /> MyCalls
-                  </div>
-                )}
-                <div style={styles.menuItem} onClick={() => handleMenuSelect('Profile')}>
-                <FaUser /> Profile
-                </div>
-                <div style={styles.menuItem} onClick={() => handleMenuSelect('Help')}>
-                <FaInfoCircle /> Help
-                </div>
-                <div style={styles.menuItem} onClick={() => handleMenuSelect('Logout')}>
-                <FaSignOutAlt /> Logout
-                </div>
+        {/* Center: Menu Items */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(location.pathname === '/CustomerMain' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('MainPage')}
+          >
+            <FaHome /> MainPage
+          </div>
+          {userData.userType === 'Worker' && (
+            <div
+              style={{
+                ...styles.menuItem,
+                ...(location.pathname === '/MyWorks' ? styles.activeMenuItem : {})
+              }}
+              onClick={() => handleMenuSelect('MyWorks')}
+            >
+              <FaTools /> MyWorks
             </div>
-            )}
+          )}
+          {userData.userType === 'Customer' && (
+            <div
+              style={{
+                ...styles.menuItem,
+                ...(location.pathname === '/MyCalls' ? styles.activeMenuItem : {})
+              }}
+              onClick={() => handleMenuSelect('MyCalls')}
+            >
+              <FaTools /> MyCalls
+            </div>
+          )}
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(location.pathname === '/ProfilePage' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('Profile')}
+          >
+            <FaUser /> Profile
+          </div>
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(location.pathname === '/HelpPage' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('Help')}
+          >
+            <FaInfoCircle /> Help
+          </div>
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(location.pathname === '/login' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('Logout')}
+          >
+            <FaSignOutAlt /> Logout
+          </div>
+        </div>
 
+        {/* Right: Page Title (e.g. MainPage) */}
+        <div style={styles.rightTitle}>
+          <FaHome />
+          MainPage
         </div>
       </header>
 
