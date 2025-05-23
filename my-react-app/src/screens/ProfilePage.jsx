@@ -749,15 +749,39 @@ const ProfilePage = () => {
 
         {/* Center: Menu Items */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          <div
-            style={{
-              ...styles.menuItem,
-              ...(location.pathname === '/CustomerMain' ? styles.activeMenuItem : {})
-            }}
-            onClick={() => handleMenuSelect('MainPage')}
-          >
-            <FaHome /> MainPage
-          </div>
+          {userData.userType === 'Customer' && (
+            <div
+              style={{
+                ...styles.menuItem,
+                ...(location.pathname === '/CustomerMain' ? styles.activeMenuItem : {})
+              }}
+              onClick={() => handleMenuSelect('MainPage')}
+            >
+              <FaHome /> MainPage
+            </div>
+          )}
+          {userData.userType === 'Worker' && (
+            <div
+              style={{
+                ...styles.menuItem,
+                ...(location.pathname === '/WorkerMain' ? styles.activeMenuItem : {})
+              }}
+              onClick={() => handleMenuSelect('MainPage')}
+            >
+              <FaHome /> MainPage
+            </div>
+          )}
+          {userData.userType === 'Admin' && (
+            <div
+              style={{
+                ...styles.menuItem,
+                ...(location.pathname === '/AdminMain' ? styles.activeMenuItem : {})
+              }}
+              onClick={() => handleMenuSelect('MainPage')}
+            >
+              <FaHome /> MainPage
+            </div>
+          )}
           {userData.userType === 'Customer' && (
             <div
               style={{
