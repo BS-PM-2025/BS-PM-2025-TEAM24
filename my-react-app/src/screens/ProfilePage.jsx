@@ -41,6 +41,7 @@ const ProfilePage = () => {
     email: '',
     gender: '',
     userType: '',
+    workType:'',
     city: '',
     street: '',
     houseNumber: '',
@@ -84,6 +85,7 @@ const ProfilePage = () => {
           email: data.email || '',
           gender: data.gender || '',
           userType: data.isAdmin ? 'Admin' : data.isWorker ? 'Worker' : 'Customer',
+          workType:data.workType||'',
           city: data.city || '',
           street: data.street || '',
           houseNumber: data.houseNumber || '',
@@ -96,6 +98,7 @@ const ProfilePage = () => {
           email: data.email || '',
           gender: data.gender || '',
           userType: data.isAdmin ? 'Admin' : data.isWorker ? 'Worker' : 'Customer',
+          workType:data.workType||'',
           city: data.city || '',
           street: data.street || '',
           houseNumber: data.houseNumber || '',
@@ -197,6 +200,7 @@ const ProfilePage = () => {
           age: userData.age,
           email: userData.email,
           gender: userData.gender,
+          workType: userData.workType,
           city: userData.city,
           street: userData.street,
           houseNumber: userData.houseNumber,
@@ -209,17 +213,27 @@ const ProfilePage = () => {
       }
 
       const updatedUser = await response.json();
+      
+      // ✅ Update state
       setUserData(prev => ({
         ...prev,
         username: updatedUser.name || prev.username,
         age: updatedUser.age || prev.age,
         email: updatedUser.email || prev.email,
         gender: updatedUser.gender || prev.gender,
+        workType: updatedUser.workType || prev.workType,
         city: updatedUser.city || prev.city,
         street: updatedUser.street || prev.street,
         houseNumber: updatedUser.houseNumber || prev.houseNumber,
         description: updatedUser.description || prev.description
       }));
+
+      // ✅ Update localStorage
+      localStorage.setItem('userData', JSON.stringify({
+        ...storedUser,
+        workType: updatedUser.workType || userData.workType
+      }));
+
       setActiveTab('general'); 
       setEditMode(false);
       alert('Profile updated successfully!');
@@ -685,33 +699,34 @@ const ProfilePage = () => {
         cursor: 'pointer',
         marginLeft: '1.5rem',
       },
-      dropdown: {
-        position: 'absolute',
-        top: '52px',
-        right: '-10px',  // ✅ add this line to align it to the right
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        maxWidth: '200px',
-        minWidth: '180px',
-        padding: '2rem 0', // ↑ increase top/bottom padding
-        overflow: 'hidden',
-        zIndex: 2000,
-      },
-      
       menuItem: {
         display: 'flex',
         alignItems: 'center',
-        padding: '1rem 1.4rem',
-        gap: '0.75rem',
+        padding: '0.4rem 0.8rem',
         fontSize: '1rem',
-        color: '#333',
-        backgroundColor: 'white',
+        color: 'white',
+        backgroundColor: 'transparent',
         cursor: 'pointer',
-        borderBottom: '1px solid #eee',
-        transition: 'background 0.2s ease',
+        borderRadius: '6px',
+        transition: 'background 0.3s ease',
+        gap: '0.5rem'
       },
-      
+      activeMenuItem: {
+      backgroundColor: 'white',
+      color: '#4a6fa5',
+      fontWeight: 'bold',
+      borderRadius: '999px',
+      padding: '0.4rem 1.2rem',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+    },
+    rightTitle: {
+      color: 'white',
+      fontSize: '2.1rem',
+      fontWeight: 'bold',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem'
+    },
   };
 
   if (loading) {
@@ -725,51 +740,92 @@ const ProfilePage = () => {
   return (
     <div style={styles.container}>
       {/* Header */}
-      <header style={styles.header}>
+     <header style={{ ...styles.header, justifyContent: 'space-between' }}>
+        {/* Left: Logo */}
         <div style={styles.logo}>
           <img src={logo} alt="Logo" style={styles.logoImage} />
           House<span style={styles.logoHighlight}>Fix</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
-          <h1 style={{ margin: 0 }}>
-              <FaUser /> ProfilePage
-          </h1>
-          <FaBars onClick={() => setMenuOpen(!menuOpen)} style={styles.menuIcon} />
-          {menuOpen && (
-            <div style={styles.dropdown}>
-              <div style={styles.menuItem} onClick={() => handleMenuSelect('MainPage')}>
-                <FaHome /> MainPage
-              </div>
-              {/* Conditionally render menu items */}
-              {userData.userType === 'Worker' && (
-                  <div style={styles.menuItem} onClick={() => handleMenuSelect('MyWorks')}>
-                    <FaTools /> MyWorks
-                  </div>
-                )}
 
-                {userData.userType === 'Customer' && (
-                  <div style={styles.menuItem} onClick={() => handleMenuSelect('MyCalls')}>
-                    <FaTools /> MyCalls
-                  </div>
-                )}
-                {userData.userType === 'Admin' && (
-                  <div style={styles.menuItem} onClick={() => handleMenuSelect('UsersList')}>
-                    <FaUsers /> Users List
-                  </div>
-                )}
-              <div style={styles.menuItem} onClick={() => handleMenuSelect('Profile')}>
-                <FaUser /> Profile
-              </div>
-              {!(userData.userType === 'Admin') && (
-                <div style={styles.menuItem} onClick={() => handleMenuSelect('Help')}>
-                  <FaInfoCircle /> Help
-                </div>
-              )}
-              <div style={styles.menuItem} onClick={() => handleMenuSelect('Logout')}>
-                <FaSignOutAlt /> Logout
-              </div>
+        {/* Center: Menu Items */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(location.pathname === '/CustomerMain' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('MainPage')}
+          >
+            <FaHome /> MainPage
+          </div>
+          {userData.userType === 'Customer' && (
+            <div
+              style={{
+                ...styles.menuItem,
+                ...(location.pathname === '/MyCalls' ? styles.activeMenuItem : {})
+              }}
+              onClick={() => handleMenuSelect('MyCalls')}
+            >
+              <FaTools /> MyCalls
             </div>
           )}
+          {userData.userType === 'Worker' && (
+            <div
+              style={{
+                ...styles.menuItem,
+                ...(location.pathname === '/MyWorks' ? styles.activeMenuItem : {})
+              }}
+              onClick={() => handleMenuSelect('MyWorks')}
+            >
+              <FaTools /> MyWorks
+            </div>
+          )}
+          {userData.userType === 'Admin' && (
+            <div
+              style={{
+                ...styles.menuItem,
+                ...(location.pathname === '/UserManagement' ? styles.activeMenuItem : {})
+              }}
+              onClick={() => handleMenuSelect('UsersList')}
+            >
+              <FaTools /> Users List
+            </div>
+           )}
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(location.pathname === '/ProfilePage' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('Profile')}
+          >
+            <FaUser /> Profile
+          </div>
+          {userData.userType !== 'Admin' && (
+            <div
+              style={{
+                ...styles.menuItem,
+                ...(location.pathname === '/HelpPage' ? styles.activeMenuItem : {})
+              }}
+              onClick={() => handleMenuSelect('Help')}
+            >
+              <FaInfoCircle /> Help
+            </div>
+          )}
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(location.pathname === '/login' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('Logout')}
+          >
+            <FaSignOutAlt /> Logout
+          </div>
+        </div>
+
+        {/* Right: Page Title (e.g. MainPage) */}
+        <div style={styles.rightTitle}>
+          <FaHome />
+          MainPage
         </div>
       </header>
   
@@ -914,6 +970,28 @@ const ProfilePage = () => {
                   disabled
                 />
               </div>
+              {userData.userType === 'Worker' && (
+                <div className={styles.formGroup}>
+                  <label style={styles.formLabel}>
+                   Work Type:
+                  </label>
+                  <select
+                  name="workType"
+                  value={userData.workType}
+                  onChange={handleInputChange}
+                  style={{
+                    ...styles.formInput,
+                    ...(activeTab !== 'edit' ? styles.formInputDisabled : {})
+                  }}
+                  disabled={activeTab !== 'edit'}
+                >
+                  <option value="Plumber">Plumber</option>
+                  <option value="Electrician">Electrician</option>
+                  <option value="Painter">Painter</option>
+                  <option value="Handy Man">Handy Man</option>
+                </select>
+                </div>
+              )}
               {userData.userType === 'Worker' && (
                 <div className={styles.formGroup}>
                   <label style={styles.formLabel}>
