@@ -28,13 +28,6 @@ const header= {
     alignItems: 'center',
     color:'white'
   };
-const Logo= {
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '1.8rem',
-    fontWeight: 'bold',
-    color: 'white'
-  };
 const logoImage= {
     width: '40px',
     height: '40px',
@@ -43,75 +36,60 @@ const logoImage= {
 const logoHighlight= {
     color: '#ffde59'
   };
-
 const tableStyle = {
   width: '100%',
   maxWidth: '1250px',
-  margin: '25px auto',
-  backgroundColor: '#fff',
+  margin: '10px auto',
+  backgroundColor: '#f7f7f9',
   borderCollapse: 'collapse',
-  boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
   borderRadius: '12px',
-  maxHeight: 'calc(100vh - 200px)', // fits within the screen
-  overflowY: 'auto',
-  overflowX: 'hidden'
+  overflow: 'auto',
+  boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
 };
 
 const thStyle = {
-  backgroundColor: '#4a6fa5',
+  backgroundColor: '#375a8c', // darker, elegant blue
   color: 'white',
-  padding: '15px',
-  textAlign: 'center'
+  padding: '16px',
+  textAlign: 'center',
+  fontSize: '1rem',
+  fontWeight: 'bold',
+  borderBottom: '2px solid #e0e0e0'
 };
 
 const tdStyle = {
-  fontSize: '1.2rem',
-  padding: '15px',
+  fontSize: '1.05rem',
+  padding: '14px 12px',
   textAlign: 'center',
-  backgroundColor: '#aed6f1'
+  backgroundColor: '#f4f7fb', // very light background
+  color: '#333',
+  borderBottom: '1px solid #e0e0e0',
+  fontWeight: 'bold'
 };
 
 const buttonStyle = {
-  backgroundColor: '#e74c3c',
+  backgroundColor: '#c0392b',
   color: 'white',
-  padding: '8px 15px',
+  padding: '6px 14px',
   border: 'none',
-  borderRadius: '8px',
-  cursor: 'pointer'
-};
-const menuIcon= {
-  fontSize: '1.6rem',
-  color: 'white',
+  borderRadius: '6px',
   cursor: 'pointer',
-  marginLeft: '1.5rem',
+  fontWeight: 'bold',
+  transition: 'background-color 0.3s ease',
 };
-const dropdown= {
-  position: 'absolute',
-  top: '52px',
-  right: '-28px',  // ✅ add this line to align it to the right
-  backgroundColor: 'white',
-  borderRadius: '8px',
-  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-  maxWidth: '200px',
-  minWidth: '180px',
-  padding: '2rem 0', // ↑ increase top/bottom padding
-  overflow: 'hidden',
-  zIndex: 2000,
-};
-
 const menuItem= {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '1rem 1.4rem',
-  gap: '0.75rem',
-  fontSize: '1rem',
-  color: '#333',
-  backgroundColor: 'white',
-  cursor: 'pointer',
-  borderBottom: '1px solid #eee',
-  transition: 'background 0.2s ease',
-};
-const activeMenuItem= {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0.4rem 0.8rem',
+    fontSize: '1rem',
+    color: 'white',
+    backgroundColor: 'transparent',
+    cursor: 'pointer',
+    borderRadius: '6px',
+    transition: 'background 0.3s ease',
+    gap: '0.5rem'
+  };
+  const activeMenuItem= {
   backgroundColor: 'white',
   color: '#4a6fa5',
   fontWeight: 'bold',
@@ -257,34 +235,43 @@ const UsersList = () => {
           MainPage
         </div>
       </header>
-      <main>
-        <h1 style={{ textAlign: 'center' }}>Users List</h1>
-        <table style={tableStyle}>
-          <thead>
-            <tr>
-              <th style={thStyle}>User Number</th>
-              <th style={thStyle}>Username</th>
-              <th style={thStyle}>Email</th>
-              <th style={thStyle}>Account Type</th>
-              <th style={thStyle}>Gender</th>
-              <th style={thStyle}>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user, index) => (
-              <tr key={user._id}>
-                <td style={tdStyle}>{index + 1}</td>
-                <td style={tdStyle}>{user.name}</td>
-                <td style={tdStyle}>{user.email}</td>
-                <td style={tdStyle}>{user.isWorker ? 'Worker' : user.isAdmin ? 'Admin' : 'Customer'}</td>
-                <td style={tdStyle}>{user.gender}</td>
-                <td style={tdStyle}>
-                  <button style={buttonStyle} onClick={() => deleteUser(user._id)}>Delete</button>
-                </td>
+      <main style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: '2rem',
+        gap: '2rem',
+        padding: '0 2rem',
+      }}>
+
+        {/* Table container on the right */}
+        <div style={{ flex: 1 }}>
+          <h1 style={{ textAlign: 'center' }}>Users List</h1>
+          <table style={tableStyle}>
+            <thead>
+              <tr>
+                <th style={thStyle}>Username</th>
+                <th style={thStyle}>Email</th>
+                <th style={thStyle}>Account Type</th>
+                <th style={thStyle}>Gender</th>
+                <th style={thStyle}>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user._id}>
+                  <td style={tdStyle}>{user.name}</td>
+                  <td style={tdStyle}>{user.email}</td>
+                  <td style={tdStyle}>{user.isWorker ? 'Worker' : user.isAdmin ? 'Admin' : 'Customer'}</td>
+                  <td style={tdStyle}>{user.gender}</td>
+                  <td style={tdStyle}>
+                    <button style={buttonStyle} onClick={() => deleteUser(user._id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </main>
     </div>
   );
