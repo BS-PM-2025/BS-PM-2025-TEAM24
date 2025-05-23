@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaBars, FaUser, FaHome, FaInfoCircle, FaSignOutAlt, FaTools } from 'react-icons/fa';
+import { FaBars, FaUser, FaHome, FaInfoCircle, FaSignOutAlt, FaTools, FaStar, FaRegStar } from 'react-icons/fa';
 import logo from '../assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
@@ -261,6 +261,22 @@ const styles = {
     fontSize: '1rem',
     color: '#777',
     marginTop: '0.3rem',
+  },
+  activeMenuItem: {
+    backgroundColor: 'white',
+    color: '#4a6fa5',
+    fontWeight: 'bold',
+    borderRadius: '999px',
+    padding: '0.4rem 1.2rem',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+  },
+  rightTitle: {
+    color: 'white',
+    fontSize: '2.1rem',
+    fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
   },
   mapModal: (showMap) => ({
     display: showMap ? 'block' : 'none',
@@ -724,35 +740,66 @@ export default function CustomerMain() {
   
   return (
     <div style={styles.container}>
-      <header style={styles.header}>
+      <header style={{ ...styles.header, justifyContent: 'space-between' }}>
+        {/* Left – Logo */}
         <div style={styles.logo}>
           <img src={logo} alt="Logo" style={styles.logoImage} />
           House<span style={styles.logoHighlight}>Fix</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
-            <h1 style={{ margin: 0 }}>
-                <FaHome /> MainPage
-            </h1>
-          <FaBars onClick={() => setMenuOpen(!menuOpen)} style={styles.menuIcon} />
-          {menuOpen && (
-            <div style={styles.dropdown}>
-              <div style={styles.menuItem} onClick={() => handleMenuSelect('MainPage')}>
-                <FaHome /> MainPage
-              </div>
-              <div style={styles.menuItem} onClick={() => handleMenuSelect('MyCalls')}>
-                <FaTools /> MyCalls
-              </div>
-              <div style={styles.menuItem} onClick={() => handleMenuSelect('Profile')}>
-                <FaUser /> Profile
-              </div>
-              <div style={styles.menuItem} onClick={() => handleMenuSelect('Help')}>
-                <FaInfoCircle /> Help
-              </div>
-              <div style={styles.menuItem} onClick={() => handleMenuSelect('Logout')}>
-                <FaSignOutAlt /> Logout
-              </div>
-            </div>
-          )}
+
+        {/* Center – Menu */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(window.location.pathname === '/CustomerMain' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('MainPage')}
+          >
+            <FaHome /> MainPage
+          </div>
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(window.location.pathname === '/MyCalls' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('MyCalls')}
+          >
+            <FaTools /> MyCalls
+          </div>
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(window.location.pathname === '/ProfilePage' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('Profile')}
+          >
+            <FaUser /> Profile
+          </div>
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(window.location.pathname === '/HelpPage' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('Help')}
+          >
+            <FaInfoCircle /> Help
+          </div>
+          <div
+            style={{
+              ...styles.menuItem,
+              ...(window.location.pathname === '/login' ? styles.activeMenuItem : {})
+            }}
+            onClick={() => handleMenuSelect('Logout')}
+          >
+            <FaSignOutAlt /> Logout
+          </div>
+        </div>
+
+        {/* Right – Page title */}
+        <div style={styles.rightTitle}>
+          <FaHome />
+          MainPage
         </div>
       </header>
       <div style={styles.mainContentRow}>
