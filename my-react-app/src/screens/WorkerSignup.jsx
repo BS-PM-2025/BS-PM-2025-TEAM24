@@ -159,10 +159,94 @@ const WorkerSignup = () => {
       alert("An error occurred while signing up.");
     }
   };
-  
+  const handleUseCurrentLocation = async () => {
+    try {
+      /* -------- 1. High-accuracy geolocation request -------- */
+      navigator.geolocation.getCurrentPosition(
+        /* success */ async ({ coords }) => {
+          const lat = coords.latitude;
+          const lng = coords.longitude;
+
+          /* -------- 2. Send coords to backend -------- */
+          const res = await fetch(
+            "http://localhost:8000/api/auth/getLocationDetails",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ lat, lng }),
+            }
+          );
+
+          const data = await res.json();
+          console.log("📍 posting coords", { lat, lng });
+
+          if (!res.ok) {
+            throw new Error(data.message || "Failed to fetch location");
+          }
+
+          /* -------- 3.  Update form fields -------- */
+          setFormData((prev) => ({
+            ...prev,
+            city: data.city,
+            street: data.street,
+            houseNumber: data.houseNumber,
+          }));
+
+          /* -------- 4.  User feedback if something is missing -------- */
+          if (!data.street) {
+            alert(
+              "Street not found automatically – please pick it from the list."
+            );
+          } else if (!data.houseNumber) {
+            alert(
+              `We found the street (“${data.street}”) but no house-number.\n` +
+                "Please type the number manually."
+            );
+          }
+          setShowStreetFields(true);
+          /* -------- 5.  Refresh street options -------- */
+          await fetchStreetsByCoordinates(lat, lng);
+        },
+
+        /* error */
+        (error) => {
+          console.error("❌ Error getting location from browser:", error);
+          alert("Failed to get your location. Please allow location access.");
+        },
+
+        /* options */
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0, // never use a cached fix
+          timeout: 10_000, // give up after 10 seconds
+        }
+      );
+    } catch (err) {
+      console.error("❌ Error using current location:", err);
+      alert("Failed to load location: " + err.message);
+    }
+  };
 
   const styles = {
-    pageContainer: { backgroundImage: 'url("https://images.unsplash.com/photo-1570129477492-45c003edd2be")', backgroundSize: 'cover', backgroundPosition: 'center', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' },
+    pageContainer: { position: 'fixed',          // Ensure it fills the screen
+      backgroundImage: 'url("https://images.unsplash.com/photo-1570129477492-45c003edd2be")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      position: 'fixed',         // ⬅️ make it fixed to cover the viewport
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      overflow: 'hidden',        // ⬅️ no scrollbars
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 0,
+      margin: 0,
+      zIndex: -1 
+    },
     card: { display: 'flex', backgroundColor: '#ffffffee', borderRadius: '10px', maxWidth: '1000px', width: '90%', height: '90vh', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)' },
     leftSide: { flex: 1, padding: '40px', overflowY: 'auto' },
     rightSide: { flex: 1, backgroundColor: '#eaf6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' },
@@ -178,7 +262,9 @@ const WorkerSignup = () => {
     accountOptions: { marginTop: '10px', textAlign: 'center', fontSize: '14px' },
     button: { backgroundColor: '#0077b6', color: '#fff', border: 'none', padding: '10px', borderRadius: '4px', fontSize: '16px', cursor: 'pointer' },
     mapModal: { position: 'fixed', top: '5%', left: '5%', width: '90%', height: '85%', background: 'white', zIndex: 1000, border: '2px solid black' },
-    closeBtn: { position: 'absolute', top: '10px', left: '10px', zIndex: 1001 }
+    closeBtn: { position: 'absolute', top: '10px', left: '10px', zIndex: 1001 },
+    forgot: { fontSize: '14px', backgroundColor: '#0077b6', color: '#fff', padding: '5px 12px', borderRadius: '4px', cursor: 'pointer', marginTop: '5px', textDecoration: 'none', display: 'inline-block', border: 'none' },
+    forgot2: { fontSize: '14px', backgroundColor: '#0077b6', color: '#fff', padding: '5px 12px', borderRadius: '4px', cursor: 'pointer',marginBottom: '5px', marginTop: '5px', textDecoration: 'none', display: 'inline-block', border: 'none' }
   };
 
   return (
@@ -196,9 +282,12 @@ const WorkerSignup = () => {
             ))}
 
             <div style={styles.formGroup}>
+              <button  type="button" style={styles.forgot2} onClick={handleUseCurrentLocation}>
+                Use Current Location
+              </button><br />
               <label>City:</label>
               <input type="text" name="city" value={formData.city} readOnly style={styles.input} />
-              <button type="button" onClick={() => setShowMap(true)} style={styles.button}>Open Map</button>
+              <button type="button" onClick={() => setShowMap(true)} style={styles.forgot}>Open Map</button>
             </div>
 
             {showStreetFields && (

@@ -133,49 +133,6 @@ exports.authController = {
             res.status(400).json({ "message": "Missing Parameters Please send all Parameters" });
         }
     },
-    async forgetPassword(req, res) {
-        const { email } = req.body;
-        if (!email) {
-            return res.status(400).json({ "message": "Email is required" });
-        }
-
-        User.findOne({ email: email })
-            .then(user => {
-                if (!user) {
-                    return res.status(404).json({ "message": "User not found" });
-                }
-
-                // Generate a 6-digit OTP
-                const otp = crypto.randomBytes(3).toString('hex').toUpperCase();
-
-                // Store the OTP in the user's document with an expiration time, e.g., 15 minutes
-                user.resetPasswordToken = otp;
-                user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
-
-                user.save().then(() => {
-                    // Send the OTP via email
-                    const mailOptions = {
-                        from: 'fadikanane@gmail.com',
-                        to: user.email,
-                        subject: 'Password Reset',
-                        text: `Your OTP for password reset is: ${otp}`
-                    };
-
-                    transporter.sendMail(mailOptions, (error, info) => {
-                        if (error) {
-                            console.log(error);
-                            res.status(500).json({ "message": "Error sending email" });
-                        } else {
-                            res.json({ "message": "An OTP has been sent to your email" });
-                        }
-                    });
-                });
-            })
-            .catch(err => {
-               errorLogger.error(err);
-                res.status(500).json({ "message": "Error finding user" });
-            });
-    },
 
     async login(req, res) {
         const email = String(req.body.email).toLowerCase();
@@ -229,9 +186,49 @@ exports.authController = {
 
     },
 
+    async forgetPassword(req, res) {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ "message": "Email is required" });
+        }
 
+        User.findOne({ email: email })
+            .then(user => {
+                if (!user) {
+                    return res.status(404).json({ "message": "User not found" });
+                }
 
+                // Generate a 6-digit OTP
+                const otp = crypto.randomBytes(3).toString('hex').toUpperCase();
 
+                // Store the OTP in the user's document with an expiration time, e.g., 15 minutes
+                user.resetPasswordToken = otp;
+                user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+                user.save().then(() => {
+                    // Send the OTP via email
+                    const mailOptions = {
+                        from: 'fadikanane@gmail.com',
+                        to: user.email,
+                        subject: 'Password Reset',
+                        text: `Your OTP for password reset is: ${otp}`
+                    };
+
+                    transporter.sendMail(mailOptions, (error, info) => {
+                        if (error) {
+                            console.log(error);
+                            res.status(500).json({ "message": "Error sending email" });
+                        } else {
+                            res.json({ "message": "An OTP has been sent to your email" });
+                        }
+                    });
+                });
+            })
+            .catch(err => {
+               errorLogger.error(err);
+                res.status(500).json({ "message": "Error finding user" });
+            });
+    },
     async resetPassword(req, res) {
         const { email, otp, newPassword } = req.body;
         if (!email || !otp || !newPassword) {
@@ -257,5 +254,47 @@ exports.authController = {
                errorLogger.error(err);
                 res.status(500).json({ "message": "Error resetting password" });
             });
-    } 
+    },
+    async getLocationDetails(req, res) {
+        try {
+            const { lat, lng } = req.body;
+            if (!lat || !lng) {
+            return res.status(400).json({ message: "Missing coordinates" });
+            }
+
+            const [heData, enData] = await Promise.all([
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=20&addressdetails=1&extratags=1&namedetails=1`).then(r => r.json()),
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=20&addressdetails=1&extratags=1&namedetails=1`).then(r => r.json())
+            ]);
+
+            const extract = (data) => {
+            const a = data.address;
+            const city = a.city || a.town || a.village || a.state_district || a.state ;
+            const street = a.road || a.street || a.pedestrian || a.footway || a.neighbourhood || "";
+            const houseNumber = a.house_number || a.housenumber || "";
+            console.log("🧭 Address Fields:", a);
+
+            return { city, street, houseNumber };
+            };
+
+            const he = extract(heData);
+            const en = extract(enData);
+
+            const fullCity = `${he.city}, ${heData.address.country} | ${en.city}, ${enData.address.country}`;
+            const finalStreet = (he.street && he.street.trim())  ? he.street
+            : (en.street && en.street.trim()) ? en.street
+            : "";
+            const finalHouseNumber = he.houseNumber || en.houseNumber || "";
+
+            return res.status(200).json({
+            city: fullCity,
+            street: finalStreet,
+            houseNumber: finalHouseNumber
+            });
+
+        } catch (err) {
+            console.error("❌ Error reverse-geocoding location:", err);
+            return res.status(500).json({ message: "Failed to get location details", error: err.message });
+        }
+    }
 };
