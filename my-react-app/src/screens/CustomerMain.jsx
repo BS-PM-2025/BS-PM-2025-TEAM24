@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FaBars, FaUser, FaHome, FaInfoCircle, FaSignOutAlt, FaTools, FaStar, FaRegStar } from 'react-icons/fa';
+import { FaBars, FaUser, FaHome, FaInfoCircle, FaSignOutAlt, FaTools, FaStar, FaRegStar, FaBolt, FaTint, FaPaintRoller, FaQuestion } from 'react-icons/fa';
 import logo from '../assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
@@ -21,10 +21,7 @@ L.Icon.Default.mergeOptions({
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundImage: 'url("https://images.unsplash.com/photo-1570129477492-45c003edd2be")',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
+    background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)',
     position: 'fixed',
     width: '100%',
     height: '100%',
@@ -35,8 +32,8 @@ const styles = {
     overflowY: 'auto',
   },
   header: {
-    backgroundColor: 'rgba(74, 111, 165, 0.9)',
-    padding: '1.4rem 2rem',
+    background: 'linear-gradient(135deg, #2b5876 0%, #4e4376 100%)',
+    padding: '1.2rem 2rem',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -44,12 +41,14 @@ const styles = {
     position: 'sticky',
     top: 0,
     zIndex: 1000,
+    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
   },
   logo: {
     display: 'flex',
     alignItems: 'center',
     fontSize: '1.8rem',
     fontWeight: 'bold',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   logoImage: {
     width: '40px',
@@ -57,47 +56,54 @@ const styles = {
     marginRight: '10px',
   },
   logoHighlight: {
-    color: '#ffde59',
+    color: '#4fd1c5',
   },
   menuItem: {
     display: 'flex',
     alignItems: 'center',
-    padding: '0.4rem 0.8rem',
+    padding: '0.6rem 1.2rem',
     fontSize: '1rem',
     color: 'white',
     backgroundColor: 'transparent',
     cursor: 'pointer',
-    borderRadius: '6px',
-    transition: 'background 0.3s ease',
-    gap: '0.5rem'
+    borderRadius: '30px',
+    transition: 'all 0.3s ease',
+    gap: '0.5rem',
+    margin: '0 0.2rem',
+    '&:hover': {
+      backgroundColor: 'rgba(255,255,255,0.15)',
+    },
   },
   activeMenuItem: {
     backgroundColor: 'white',
-    color: '#4a6fa5',
-    fontWeight: 'bold',
-    borderRadius: '999px',
-    padding: '0.4rem 1.2rem',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+    color: '#2b5876',
+    fontWeight: '600',
+    borderRadius: '30px',
+    padding: '0.6rem 1.4rem',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   },
   rightTitle: {
     color: 'white',
-    fontSize: '2.1rem',
-    fontWeight: 'bold',
+    fontSize: '1.8rem',
+    fontWeight: '600',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem'
+    gap: '0.5rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   welcome: {
-    fontSize: '2rem',
-    marginBottom: '1rem',
-    color: '#4a6fa5',
-    fontWeight: 'bold',
+    fontSize: '2.2rem',
+    marginBottom: '1.5rem',
+    color: '#2c3e50',
+    fontWeight: '600',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   paragraph: {
-    fontSize: '1.6rem',
-    color: '#333',
+    fontSize: '1.1rem',
+    color: '#4a5568',
     marginBottom: '2rem',
-    lineHeight: 1.8,
+    lineHeight: 1.7,
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   mainContentRow: {
     display: 'flex',
@@ -106,32 +112,34 @@ const styles = {
     padding: '2rem 5%',
     gap: '2rem',
     alignItems: 'stretch',
-    width: '75%',
+    width: '90%',
+    maxWidth: '1400px',
     margin: '0 auto',
   },
   contentBox: {
     flex: '1 1 60%',
     minWidth: '300px',
-    padding: '2rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: '12px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    padding: '2.5rem',
+    backgroundColor: 'white',
+    borderRadius: '16px',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
     textAlign: 'center',
   },
   ratingContainer: {
     flex: '1 1 35%',
     minWidth: '300px',
-    padding: '2rem',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: '12px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+    padding: '2.5rem',
+    backgroundColor: 'white',
+    borderRadius: '16px',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
   },
   ratingTitle: {
-    fontSize: '1.8rem',
-    color: '#4a6fa5',
-    fontWeight: 'bold',
+    fontSize: '1.6rem',
+    color: '#2c3e50',
+    fontWeight: '600',
     marginBottom: '1.5rem',
     textAlign: 'center',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   starsContainer: {
     display: 'flex',
@@ -141,66 +149,78 @@ const styles = {
   },
   star: {
     cursor: 'pointer',
-    fontSize: '2rem',
-    color: '#ccc',
-    transition: 'color 0.2s ease',
+    fontSize: '2.2rem',
+    color: '#e2e8f0',
+    transition: 'all 0.2s ease',
   },
   activeStar: {
-    color: '#ffc107',
+    color: '#f6ad55',
   },
   submitRatingBtn: {
     display: 'block',
     margin: '0 auto',
     padding: '0.8rem 2rem',
-    backgroundColor: '#4a6fa5',
+    background: 'linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '5px',
+    borderRadius: '30px',
     fontSize: '1rem',
+    fontWeight: '600',
     cursor: 'pointer',
-    transition: 'background 0.3s ease',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 2px 10px rgba(79, 209, 197, 0.3)',
     '&:hover': {
-      backgroundColor: '#375a8c',
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 12px rgba(79, 209, 197, 0.4)',
     },
   },
   averageRating: {
     textAlign: 'center',
     margin: '1.5rem 0',
     fontSize: '1.2rem',
-    color: '#4a6fa5',
-    fontWeight: 'bold',
+    color: '#4a5568',
+    fontWeight: '600',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   ratingList: {
     maxHeight: '300px',
     overflowY: 'auto',
-    backgroundColor: '#f9f9f9',
-    padding: '1rem',
-    borderRadius: '8px',
-    border: '1px solid #ddd',
+    backgroundColor: '#f8fafc',
+    padding: '1.5rem',
+    borderRadius: '12px',
+    border: '1px solid #edf2f7',
   },
   ratingItem: {
     marginBottom: '1rem',
     paddingBottom: '1rem',
-    borderBottom: '1px solid #eee',
-    fontSize: '1.2rem',
+    borderBottom: '1px solid #e2e8f0',
+    fontSize: '1rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   ratingUser: {
-    fontWeight: 'bold',
-    color: '#4a6fa5',
+    fontWeight: '600',
+    color: '#2b6cb0',
   },
   ratingDate: {
-    fontSize: '1rem',
-    color: '#777',
+    fontSize: '0.9rem',
+    color: '#718096',
     marginTop: '0.3rem',
   },
   openCallButton: {
     padding: '14px 40px',
-    fontSize: '1.5rem',
-    backgroundColor: '#4a6fa5',
+    fontSize: '1.2rem',
+    background: 'linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '30px',
     cursor: 'pointer',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 2px 10px rgba(79, 209, 197, 0.3)',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 12px rgba(79, 209, 197, 0.4)',
+    },
   },
   modalOverlay: {
     position: 'fixed',
@@ -213,105 +233,206 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 2000,
-    overflowY: 'auto'
+    overflowY: 'auto',
   },
   modal: {
     backgroundColor: 'white',
-    padding: '2rem',
-    borderRadius: '8px',
+    padding: '2.5rem',
+    borderRadius: '16px',
     width: '90%',
     maxWidth: '500px',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+    boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
     position: 'relative',
   },
   modalTitle: {
     marginBottom: '1.5rem',
-    color: '#4a6fa5',
+    color: '#2c3e50',
     textAlign: 'center',
     fontSize: '1.8rem',
-    fontWeight: 'bold'
+    fontWeight: '600',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   input: {
     width: '100%',
-    padding: '10px',
-    marginBottom: '0.2rem',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
+    padding: '12px',
+    marginBottom: '1rem',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '1rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    transition: 'all 0.2s ease',
+    '&:focus': {
+      borderColor: '#4fd1c5',
+      boxShadow: '0 0 0 3px rgba(79, 209, 197, 0.2)',
+      outline: 'none',
+    },
   },
   submitBtn: {
-    padding: '10px 20px',
-    backgroundColor: '#4a6fa5',
+    padding: '12px 24px',
+    background: 'linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: '1rem'
-  },
-  mapBtn: {
-    padding: '6px 6px',
-    backgroundColor: '#4a6fa5',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
+    borderRadius: '30px',
     cursor: 'pointer',
     fontSize: '1rem',
-    marginBottom: '20px'
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 2px 10px rgba(79, 209, 197, 0.3)',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 12px rgba(79, 209, 197, 0.4)',
+    },
   },
   formLabel: {
     display: 'block',
-    marginBottom: '0.5rem',
-    fontWeight: 500,
-    color: '#4a6fa5',
+    marginBottom: '0.6rem',
+    fontWeight: '600',
+    color: '#2c3e50',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem'
+    gap: '0.5rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   sectionTitle: {
-    fontSize: '1.3rem',
-    color: '#4a6fa5',
-    marginBottom: '0.1rem',
+    fontSize: '1.4rem',
+    color: '#2c3e50',
+    marginBottom: '1rem',
     paddingBottom: '0.5rem',
-    borderBottom: '1px solid #eee',
-    marginTop: '15px'
+    borderBottom: '1px solid #e2e8f0',
+    marginTop: '1.5rem',
+    fontWeight: '600',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   mapModal: {
     position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '90%',
-    height: '80%',
-    backgroundColor: '#fff',
-    zIndex: 1000,
-    border: '2px solid #4a6fa5',
-    borderRadius: '10px',
-    overflow: 'hidden',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 3000,
   },
   closeBtn: {
     position: 'absolute',
-    top: 10,
-    left: 10,
+    top: '12px',
+    left: '12px',
     zIndex: 1001,
-    padding: '6px 14px',
-    backgroundColor: '#dc3545',
+    padding: '8px 16px',
+    backgroundColor: '#e53e3e',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '30px',
     cursor: 'pointer',
-    fontSize: '14px'
+    fontSize: '14px',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      backgroundColor: '#c53030',
+    },
   },
   mapContainer: {
-    width: '100%',
-    height: '100%'
+    width: '90%',
+    height: '80%',
+    boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
+    borderRadius: '16px',
+    overflow: 'hidden',
+  },
+  callTypesContainer: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '20px',
+    margin: '30px 0',
+  },
+  callTypeCard: {
+    backgroundColor: 'white',
+    borderRadius: '16px',
+    padding: '25px 20px',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.08)',
+    cursor: 'pointer',
+    transition: 'transform 0.23s cubic-bezier(.4,2,.7,1), box-shadow 0.22s',
+    textAlign: 'center',
+    border: '2px solid transparent',
+    '&:hover': {
+      transform: 'translateY(-5px)',
+      boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
+    },
+  },
+  callTypeIcon: {
+    fontSize: '2.8rem',
+    marginBottom: '15px',
+  },
+  callTypeTitle: {
+    fontSize: '1.3rem',
+    fontWeight: '600',
+    marginBottom: '8px',
+    color: '#2c3e50',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  },
+  callTypeSubtitle: {
+    fontSize: '1rem',
+    color: '#718096',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  },
+  callTypeElectricity: {
+    background: 'linear-gradient(135deg, rgba(246, 173, 85, 0.1) 0%, rgba(251, 211, 141, 0.1) 100%)',
+    borderColor: '#f6ad55',
+    '&:hover': {
+      boxShadow: '0 8px 20px rgba(246, 173, 85, 0.15)',
+    },
+  },
+  callTypePlumbing: {
+    background: 'linear-gradient(135deg, rgba(66, 153, 225, 0.1) 0%, rgba(147, 197, 253, 0.1) 100%)',
+    borderColor: '#4299e1',
+    '&:hover': {
+      boxShadow: '0 8px 20px rgba(66, 153, 225, 0.15)',
+    },
+  },
+  callTypePainting: {
+    background: 'linear-gradient(135deg, rgba(245, 101, 101, 0.1) 0%, rgba(252, 165, 165, 0.1) 100%)',
+    borderColor: '#f56565',
+    '&:hover': {
+      boxShadow: '0 8px 20px rgba(245, 101, 101, 0.15)',
+    },
+  },
+  callTypeOther: {
+    background: 'linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(134, 239, 172, 0.1) 100%)',
+    borderColor: '#48bb78',
+    '&:hover': {
+      boxShadow: '0 8px 20px rgba(72, 187, 120, 0.15)',
+    },
+  },
+
+  addressButtonsContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '12px',
+    margin: '20px 0',
+  },
+  mapBtn: {
+    padding: '10px 16px',
+    backgroundColor: '#edf2f7',
+    color: '#2d3748',
+    border: 'none',
+    borderRadius: '30px',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
+    fontWeight: '500',
+    transition: 'all 0.2s ease',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    '&:hover': {
+      backgroundColor: '#e2e8f0',
+    },
   },
 };
-
 export default function CustomerMain() {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const [selectedCallType, setSelectedCallType] = useState('');
   const [userName, setUserName] = useState('');
-  const [formData, setFormData] = useState({ callType: '', city: '', street: '', houseNumber: '', description: '' });
+  const [formData, setFormData] = useState({ callType: '', city: '', street: '', houseNumber: '', date:Date.now ,description: '' });
   const [rating, setRating] = useState(0);
   const [ratings, setRatings] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
@@ -321,11 +442,7 @@ export default function CustomerMain() {
   const markerRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const streetOptions = streets.map(street => ({
-    value: street,
-    label: street
-  }));
+  const [hoveredCallType, setHoveredCallType] = useState('');
 
   const [userData, setUserData] = useState({
     username: '',
@@ -592,7 +709,7 @@ export default function CustomerMain() {
 
   const handleMenuSelect = (option) => {
     if (option === 'MainPage') navigate('/CustomerMain');
-    else if (option === 'MyCalls') navigate('/MyCalls');
+    else if (option === 'MyCalls') navigate('/CustomerCalls');
     else if (option === 'Profile') navigate('/ProfilePage');
     else if (option === 'Help') navigate('/HelpPage');
     else if (option === 'Logout') {
@@ -608,7 +725,7 @@ export default function CustomerMain() {
       return;
     }
 
-    if (!formData.callType || !formData.city || !formData.street || !formData.houseNumber || !formData.description) {
+    if (!selectedCallType || !formData.city || !formData.street || !formData.houseNumber || !formData.description) {
       alert("Please fill in all fields.");
       return;
     }
@@ -621,10 +738,11 @@ export default function CustomerMain() {
           "x-access-token": storedUser.accessToken
         },
         body: JSON.stringify({
-          callType: formData.callType,
+          callType: selectedCallType,
           city: formData.city,
           street: formData.street,
           houseNumber: formData.houseNumber,
+          date:Date.now,
           description: formData.description,
           costumerdetails: [
             `Name: ${storedUser.name}`,
@@ -641,6 +759,7 @@ export default function CustomerMain() {
         alert("Your call has been submitted successfully!");
         setShowModal(false);
         setFormData({ callType: '', city: '', street: '', houseNumber: '', description: '' });
+        setSelectedCallType('');
       } else {
         alert("❌ Failed to submit call: " + result.message);
       }
@@ -706,12 +825,14 @@ export default function CustomerMain() {
   const cancelbtn = async () => {
     setShowModal(false);
     setFormData({ callType: '', city: '', street: '', houseNumber: '', description: '' });
+    setSelectedCallType('');
   };
 
-  const opencallmodal = async () => {
+  const openCallModal = (callType) => {
+    setSelectedCallType(callType);
     setShowModal(true);
     setFormData({
-      callType: '',
+      callType: callType,
       city: userData.city,
       street: userData.street,
       houseNumber: userData.houseNumber,
@@ -727,13 +848,11 @@ export default function CustomerMain() {
         return;
       }
 
-      /* -------- 1. High-accuracy geolocation request -------- */
       navigator.geolocation.getCurrentPosition(
-        /* success */ async ({ coords }) => {
+        async ({ coords }) => {
           const lat = coords.latitude;
           const lng = coords.longitude;
 
-          /* -------- 2. Send coords to backend -------- */
           const res = await fetch(
             "http://localhost:8000/api/events/getLocationDetails",
             {
@@ -753,7 +872,6 @@ export default function CustomerMain() {
             throw new Error(data.message || "Failed to fetch location");
           }
 
-          /* -------- 3.  Update form fields -------- */
           setFormData((prev) => ({
             ...prev,
             city: data.city,
@@ -761,7 +879,6 @@ export default function CustomerMain() {
             houseNumber: data.houseNumber,
           }));
 
-          /* -------- 4.  User feedback if something is missing -------- */
           if (!data.street) {
             alert(
               "Street not found automatically – please pick it from the list."
@@ -773,24 +890,21 @@ export default function CustomerMain() {
             );
           }
 
-          /* -------- 5.  Refresh street options -------- */
           const streets = await fetchStreetsByCity(
             data.city.split(",")[0].trim()
           );
           setStreets(streets);
         },
 
-        /* error */
         (error) => {
           console.error("❌ Error getting location from browser:", error);
           alert("Failed to get your location. Please allow location access.");
         },
 
-        /* options */
         {
           enableHighAccuracy: true,
-          maximumAge: 0, // never use a cached fix
-          timeout: 10_000, // give up after 10 seconds
+          maximumAge: 0,
+          timeout: 10_000,
         }
       );
     } catch (err) {
@@ -823,7 +937,7 @@ export default function CustomerMain() {
           <div
             style={{
               ...styles.menuItem,
-              ...(window.location.pathname === '/MyCalls' ? styles.activeMenuItem : {})
+              ...(window.location.pathname === '/CustomerCalls' ? styles.activeMenuItem : {})
             }}
             onClick={() => handleMenuSelect('MyCalls')}
           >
@@ -872,11 +986,97 @@ export default function CustomerMain() {
           <h2 style={styles.welcome}>Welcome {userName}!</h2>
           <p style={styles.paragraph}>
             HouseFix helps you quickly find trusted professionals for your home repairs.
-            Post a call and get offers from local workers all around the country in the fastest time. <br /> <strong>Here you can open a new call:</strong>
+            Post a call and get offers from local workers all around the country in the fastest time.
           </p>
-          <button style={styles.openCallButton} onClick={opencallmodal}>
-            <FaTools style={{ marginRight: '10px' }} /> Open Call
-          </button>
+          
+          <h3 style={{ color: '#4a6fa5', marginBottom: '20px' }}>Select Service Type:</h3>
+          
+              <div style={styles.callTypesContainer}>
+                {/* Electricity Card */}
+                <div
+                  style={{
+                    ...styles.callTypeCard,
+                    ...styles.callTypeElectricity,
+                    ...(selectedCallType === 'Electricity' && { borderColor: '#ffde59' }),
+                    ...(hoveredCallType === 'Electricity' && {
+                      transform: 'scale(1.08)',
+                      boxShadow: '0 12px 36px rgba(255,222,89,0.15)',
+                      zIndex: 2
+                    })
+                  }}
+                  onClick={() => openCallModal('Electricity')}
+                  onMouseEnter={() => setHoveredCallType('Electricity')}
+                  onMouseLeave={() => setHoveredCallType('')}
+                >
+                  <FaBolt style={{ ...styles.callTypeIcon, color: '#ffde59' }} />
+                  <div style={styles.callTypeTitle}>Electricity</div>
+                  <div style={styles.callTypeSubtitle}>חשמל</div>
+                </div>
+
+                {/* Plumbing Card */}
+                <div
+                  style={{
+                    ...styles.callTypeCard,
+                    ...styles.callTypePlumbing,
+                    ...(selectedCallType === 'Plumbing' && { borderColor: '#58baff' }),
+                    ...(hoveredCallType === 'Plumbing' && {
+                      transform: 'scale(1.08)',
+                      boxShadow: '0 12px 36px rgba(88,186,255,0.15)',
+                      zIndex: 2
+                    })
+                  }}
+                  onClick={() => openCallModal('Plumbing')}
+                  onMouseEnter={() => setHoveredCallType('Plumbing')}
+                  onMouseLeave={() => setHoveredCallType('')}
+                >
+                  <FaTint style={{ ...styles.callTypeIcon, color: '#58baff' }} />
+                  <div style={styles.callTypeTitle}>Plumbing</div>
+                  <div style={styles.callTypeSubtitle}>מים</div>
+                </div>
+
+                {/* Painting Card */}
+                <div
+                  style={{
+                    ...styles.callTypeCard,
+                    ...styles.callTypePainting,
+                    ...(selectedCallType === 'Painting' && { borderColor: '#ff5858' }),
+                    ...(hoveredCallType === 'Painting' && {
+                      transform: 'scale(1.08)',
+                      boxShadow: '0 12px 36px rgba(255,88,88,0.15)',
+                      zIndex: 2
+                    })
+                  }}
+                  onClick={() => openCallModal('Painting')}
+                  onMouseEnter={() => setHoveredCallType('Painting')}
+                  onMouseLeave={() => setHoveredCallType('')}
+                >
+                  <FaPaintRoller style={{ ...styles.callTypeIcon, color: '#ff5858' }} />
+                  <div style={styles.callTypeTitle}>Painting</div>
+                  <div style={styles.callTypeSubtitle}>צבעות</div>
+                </div>
+
+                {/* Other Card */}
+                <div
+                  style={{
+                    ...styles.callTypeCard,
+                    ...styles.callTypeOther,
+                    ...(selectedCallType === 'Other' && { borderColor: '#8ac926' }),
+                    ...(hoveredCallType === 'Other' && {
+                      transform: 'scale(1.08)',
+                      boxShadow: '0 12px 36px rgba(138,201,38,0.15)',
+                      zIndex: 2
+                    })
+                  }}
+                  onClick={() => openCallModal('Other')}
+                  onMouseEnter={() => setHoveredCallType('Other')}
+                  onMouseLeave={() => setHoveredCallType('')}
+                >
+                  <FaQuestion style={{ ...styles.callTypeIcon, color: '#8ac926' }} />
+                  <div style={styles.callTypeTitle}>Other</div>
+                  <div style={styles.callTypeSubtitle}>תלייה והרכבה</div>
+                </div>
+              </div>
+
           <p style={styles.paragraph}>
             <br />If you want to see an explanation about the website <a href="#" onClick={() => navigate('/HelpPage')}>Click Here</a>
           </p>
@@ -963,11 +1163,19 @@ export default function CustomerMain() {
           )}
         </div>
       </div>
+       {showMap && (
+        <div style={styles.mapModal}>
+          <button style={styles.closeBtn} onClick={() => setShowMap(false)}>
+            ×
+          </button>
+          <div id="leafletMap" style={styles.mapContainer} />
+        </div>
+      )}
 
-      {/*the signup address loads automaticly at the rigth field when openning the cal popup*/}
       {showModal && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
+            {/* Close button */}
             <button
               onClick={cancelbtn}
               style={{
@@ -984,93 +1192,70 @@ export default function CustomerMain() {
               ×
             </button>
 
-            <h1 style={styles.modalTitle}>Open New Call</h1>
-            <h2 style={styles.sectionTitle}>Call Information</h2>
+            <h2 style={styles.modalTitle}>New {selectedCallType} Call</h2>
 
-            <label style={styles.formLabel}>Call Type:</label>
-            <select
-              style={styles.input}
-              value={formData.callType}
-              onChange={(e) => setFormData({ ...formData, callType: e.target.value })}
-            >
-              <option value="">Select Call Type</option>
-              <option value="Plumbing">Plumbing</option>
-              <option value="Electricity">Electricity</option>
-              <option value="Painting">Painting</option>
-              <option value="Other">Other</option>
-            </select>
-
-            <label style={styles.formLabel}>Description:</label>
+            {/* Description */}
+            <label style={styles.formLabel}>Description</label>
             <textarea
-              style={{
-                ...styles.input,
-                height: '50px',
-                resize: 'vertical',
-                lineHeight: '1.5',
-                whiteSpace: 'pre-wrap'
-              }}
-              placeholder="Add a description about the problem...."
+              style={{ ...styles.input, height: '60px', resize: 'vertical' }}
+              placeholder="Describe your issue…"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={e => setFormData({ ...formData, description: e.target.value })}
             />
-            <div>
-              <h2 style={styles.sectionTitle}>Address Information</h2>
+
+            {/* Address Section */}
+            <h3 style={styles.sectionTitle}>Address Information</h3>
+
+            <div style={styles.addressButtonsContainer}>
+              {/* Signup-address button */}
               <button
                 style={styles.mapBtn}
-                onClick={() => {
+                onClick={() =>
                   setFormData(prev => ({
                     ...prev,
                     city: userData.city,
                     street: userData.street,
                     houseNumber: userData.houseNumber
-                  }));
-                }}
+                  }))
+                }
               >
                 Select your SignUp Address
-              </button><br />
+              </button>
+
+              {/* Current-location button */}
               <button style={styles.mapBtn} onClick={handleUseCurrentLocation}>
                 Use Current Location
               </button>
 
-              <h3 style={styles.formLabel}>Or add another address:</h3>
-              <div>
-                <label style={styles.formLabel}>City:</label>
-                <input
-                  style={styles.input}
-                  placeholder="Choose City from the map..."
-                  value={formData.city}
-                  readOnly
-                />
-                <button style={styles.mapBtn} onClick={() => setShowMap(true)}>
-                  Open Map
-                </button>
-                {showMap && (
-                  <div style={styles.mapModal}>
-                    <button style={styles.closeBtn} onClick={() => setShowMap(false)}>Close</button>
-                    <div id="leafletMap" style={styles.mapContainer}></div>
-                  </div>
-                )}
-              </div>
-
-              <label style={styles.formLabel}>Street:</label>
-              <Select
-                options={streetOptions}
-                value={streetOptions.find(option => option.value === formData.street)}
-                onChange={(selected) => setFormData({ ...formData, street: selected.value })}
-                placeholder="Select or search for a street"
-              />
-
-              <label style={styles.formLabel}>House Number:</label>
-              <input
-                style={styles.input}
-                type="number"
-                placeholder="Add your House Number..."
-                value={formData.houseNumber}
-                onChange={(e) => setFormData({ ...formData, houseNumber: e.target.value })}
-              />
+              {/* Open-map button */}
+              <label style={styles.formLabel}>OR select city from the map :</label>
+              <button style={styles.mapBtn} onClick={() => setShowMap(true)}>
+                Open Map
+              </button>
             </div>
 
-            {/* Action buttons */}
+            {/* City / Street / House fields */}
+            <label style={styles.formLabel}>City</label>
+            <input style={styles.input} readOnly value={formData.city} />
+
+            <label style={styles.formLabel}>Street</label>
+            <Select
+              options={streets.map(s => ({ label: s, value: s }))}
+              value={streets.map(s => ({ label: s, value: s })).find(o => o.value === formData.street)}
+              onChange={opt => setFormData({ ...formData, street: opt.value })}
+              placeholder="Select your street"
+            />
+
+            <label style={styles.formLabel}>House Number</label>
+            <input
+              style={styles.input}
+              type="number"
+              placeholder="e.g. 123"
+              value={formData.houseNumber}
+              onChange={e => setFormData({ ...formData, houseNumber: e.target.value })}
+            />
+
+            {/* Cancel / Submit */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
               <button
                 onClick={cancelbtn}
@@ -1086,13 +1271,13 @@ export default function CustomerMain() {
               >
                 Cancel
               </button>
-              <button style={styles.submitBtn} onClick={handleOpenCall}>
-                Submit
+              <button onClick={handleOpenCall} style={styles.submitBtn}>
+                Submit Call
               </button>
             </div>
           </div>
         </div>
-      )}
+      )}     
     </div>
   );
 }
