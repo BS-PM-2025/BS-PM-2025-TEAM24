@@ -162,7 +162,63 @@ exports.eventsController = {
             console.error("❌ Error reverse-geocoding location:", err);
             return res.status(500).json({ message: "Failed to get location details", error: err.message });
         }
-    }  
+    },
+    async unapply(req, res) {
+    try {
+      const eventId = req.params.id;
+
+      // Build a filter that works whether 'id' is a real ObjectId or your UUID callID
+      const filter = mongoose.Types.ObjectId.isValid(eventId)
+        ? { _id: eventId }
+        : { callID: eventId };
+
+      // Pull this user out of both arrays
+      const updated = await Events.findOneAndUpdate(
+        filter,
+        {
+          $pull: {
+            applicants: req.userId,
+            approvedWorkers: req.userId,
+          }
+        },
+        { new: true }
+      );
+
+      if (!updated) {
+        // no event found
+        return res.status(404).json({ message: 'Call not found' });
+      }
+
+      return res.json({ message: 'Unapplied successfully' });
+    } catch (err) {
+      errorLogger.error(`Error unapplying: ${err}`);
+      return res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  },
+  async getMyApplications(req, res) {
+    try {
+        const apps = await Events.find({
+        applicants: req.userId,
+        status    : 'Open'                        // 👈 filter!
+        }).sort({ date: -1 });
+        return res.json(apps);
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+    },
+    async getMyApprovedCalls(req, res) {
+    try {
+        // find all Events where this user is in approvedWorkers
+        const calls = await Events.find({ approvedWorkers: req.userId })
+                                .sort({ date: -1 })
+                                .lean();
+        return res.json(calls);
+    } catch (err) {
+        errorLogger.error(`Error fetching approved calls: ${err}`);
+        return res.status(500).json({ message: err.message });
+    }
+    },
+  
 };
 
 
