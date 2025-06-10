@@ -5,7 +5,10 @@ const { infoLogger, errorLogger } = require("./logs/logs");
 const { ratingsRouter } = require("./routers/ratingsRouter");
 const { usersRouter } = require("./routers/usersRouter");
 const { eventsRouter } = require("./routers/eventsRouter");
+const { workRateRouter } = require('./routers/workRateRouter');
 const authJwt = require('./middlewares/authJwt');
+
+
 
 // Log method
 app.use((req, res, next) => {
@@ -36,7 +39,7 @@ app.use(authJwt.verifyToken); // protect below routes
 app.use('/api/users', usersRouter);
 app.use('/api/ratings', ratingsRouter);
 app.use('/api/events', eventsRouter);
-
+app.use('/api/workRates', workRateRouter);
 // 404 fallback
 app.use((req, res) => {
     errorLogger.error(`Bad Method Request!: ${req.method} ${req.url}`);

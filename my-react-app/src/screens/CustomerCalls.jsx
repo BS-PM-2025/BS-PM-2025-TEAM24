@@ -723,6 +723,73 @@ const [initialMapZoom, setInitialMapZoom] = useState(16);
       alert('Error deleting call: ' + e.message);
     }
   };
+  const openModal = async (callId) => {
+  // ─── auth token ──────────────────────────────────────────────────────
+  const { accessToken } = JSON.parse(localStorage.getItem('userData')) || {};
+  if (!accessToken) { alert('Please log-in again'); return; }
+
+  try {
+    // ─── 1) base request: who applied / was approved ───────────────────
+    const res = await fetch(
+      `http://localhost:8000/api/events/applicants/${callId}`,
+      { headers: { 'x-access-token': accessToken } }
+    );
+    const { applicants = [], approvedWorkers = [] } = await res.json();
+
+    // ─── 2) add profile details that are NOT returned by that route ────
+    const enrich = async (w) => {
+      // already has the fields? skip extra request
+      if (w.city || w.gender || w.description) return w;
+
+      try {
+        const uRes = await fetch(
+          `http://localhost:8000/api/users/${w._id}`,
+          { headers: { 'x-access-token': accessToken } }
+        );
+        if (!uRes.ok) return w;               // ignore 4xx/5xx
+        const profile = await uRes.json();     // { city, street, … }
+        return { ...w, ...profile };          // merge & return
+      } catch {
+        return w;                             // ignore network error
+      }
+    };
+
+    const fullApproved   = await Promise.all(approvedWorkers.map(enrich));
+    const fullApplicants = await Promise.all(applicants.map(enrich));
+
+    setApprovedWorkers(fullApproved);
+    setApplicants(fullApplicants);
+    setCurrentCallId(callId);
+
+    // ─── 3) pull ratings for every worker we now have ──────────────────
+    const allWorkers = [...fullApproved, ...fullApplicants];
+    const ratingsObj = {};
+
+    await Promise.all(
+      allWorkers.map(async (w) => {
+        try {
+          const [avgRes, listRes] = await Promise.all([
+            fetch(`http://localhost:8000/api/workRates/avg/${w._id}`,
+                  { headers: { 'x-access-token': accessToken } }),
+            fetch(`http://localhost:8000/api/workRates/${w._id}`,
+                  { headers: { 'x-access-token': accessToken } })
+          ]);
+
+          const { average = 0, count = 0 } = await avgRes.json();
+          const list = await listRes.json();       // detailed feedbacks
+
+          ratingsObj[w._id] = { avg: average, count, list };
+        } catch {/* ignore errors for this one worker */}
+      })
+    );
+
+    setWorkerRatings(ratingsObj);
+    setModalOpen(true);           // finally open the dialog
+  } catch (err) {
+    console.error('Failed to load applicants:', err);
+    alert('Failed to load applicants');
+  }
+};
   const handleMenuSelect = (option) => {
     if (option === 'MainPage') navigate('/CustomerMain');
     else if (option === 'MyCalls') navigate('/CustomerCalls');
