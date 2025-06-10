@@ -218,24 +218,55 @@ exports.eventsController = {
         return res.status(500).json({ message: err.message });
     }
     },
-    async completeCall(req, res) {
-      try {
-        const call = await Events.findByIdAndUpdate(
-          req.params.id,          // :id parameter
-          { status: 'completed' },
-          { new: true }           // return the updated doc
-        );
+      async completeCall(req, res) {
+    try {
+      const call = await Events.findByIdAndUpdate(
+        req.params.id,          // :id parameter
+        { status: 'completed' },
+        { new: true }           // return the updated doc
+      );
 
-        if (!call) {
-          return res.status(404).json({ message: 'Call not found' });
-        }
-
-        res.json(call);           // send updated call back
-      } catch (err) {
-        errorLogger.error(`completeCall error: ${err}`);
-        res.status(500).json({ message: 'Server error' });
+      if (!call) {
+        return res.status(404).json({ message: 'Call not found' });
       }
-    },
+         try {
+     const customer = await User.findById(call.createdBy)
+                                .select('name email');
+
+     const worker   = await User.findById(req.userId)
+                                .select('name');
+
+     if (customer?.email) {
+       await sendMail(
+         customer.email,
+         '🎉 Your job is completed!',
+         `
+Hi ${customer.name},
+
+Great news — ${worker?.name || 'Your worker'} marked the "${call.callType}"
+job (#${call.callID}) as completed.
+
+Please check the work and feel free to rate the worker in HouseFix.
+
+Thank you for using HouseFix!
+
+— HouseFix Team
+         `.trim()
+       );
+     }
+   } catch (mailErr) {
+     errorLogger.error('Could not send “job done” e-mail: ' + mailErr);
+     /* the API call itself should still succeed even if mail fails */
+   }
+ 
+
+
+      res.json(call);           // send updated call back
+    } catch (err) {
+      errorLogger.error(`completeCall error: ${err}`);
+      res.status(500).json({ message: 'Server error' });
+    }
+  },
 };
 
 
