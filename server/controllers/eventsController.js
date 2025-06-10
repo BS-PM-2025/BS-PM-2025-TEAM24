@@ -267,6 +267,68 @@ Thank you for using HouseFix!
       res.status(500).json({ message: 'Server error' });
     }
   },
+  
+   async approveWorker(req, res) {
+  try {
+    const { id, workerId } = req.params;
+
+    /*  one atomic update is enough  */
+    const event = await Events.findByIdAndUpdate(
+      id,
+      {
+        $addToSet : { approvedWorkers: workerId },
+        /* … empty the applicants list so nobody else sees it */
+        $set      : { applicants: [],              // ①
+        status    : 'in progress',    // ②
+        assignedWorker: workerId },
+        rated         : false 
+      },
+      { new: true }
+    );
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+       try {
+     // who was approved?
+     const worker   = await User.findById(workerId).select('name email');
+     // who approved him?
+     const customer = await User.findById(event.createdBy).select('name email');
+
+     if (worker?.email) {
+       await sendMail(
+         worker.email,
+         '✅ Your request was approved!',
+         `
+    Hi ${worker.name},
+
+   Great news – ${customer?.name || 'a customer'} has approved your request
+   for the "${event.callType}" call (#${event.callID}).
+
+   You can now contact the customer through HouseFix to arrange the details.
+
+   Good luck!
+
+   — HouseFix Team
+         `.trim()
+       );
+     }
+   } catch (mailErr) {
+     errorLogger.error('Could not send approval mail: ' + mailErr);
+     /* we log the error but DO NOT fail the API call */
+   }
+
+
+    return res.json({
+      message: 'Worker approved & event set to "in progress"',
+      event
+    });
+
+  } catch (err) {
+    errorLogger.error(`Error approving worker: ${err}`);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+},
 };
 
 
