@@ -703,7 +703,7 @@ const [initialMapZoom, setInitialMapZoom] = useState(16);
     }
   };
 
-    const handleDelete = async (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this call?')) return;
     
     const storedUser = JSON.parse(localStorage.getItem('userData'));
@@ -723,7 +723,7 @@ const [initialMapZoom, setInitialMapZoom] = useState(16);
       alert('Error deleting call: ' + e.message);
     }
   };
-  const openModal = async (callId) => {
+const openModal = async (callId) => {
   // ─── auth token ──────────────────────────────────────────────────────
   const { accessToken } = JSON.parse(localStorage.getItem('userData')) || {};
   if (!accessToken) { alert('Please log-in again'); return; }
@@ -790,6 +790,7 @@ const [initialMapZoom, setInitialMapZoom] = useState(16);
     alert('Failed to load applicants');
   }
 };
+
   const handleMenuSelect = (option) => {
     if (option === 'MainPage') navigate('/CustomerMain');
     else if (option === 'MyCalls') navigate('/CustomerCalls');
@@ -1879,7 +1880,26 @@ function getEnglishPart(str) {
 
       {/* MAIN CONTENT */}
    <div style={styles.mainContent}>
-
+    {/* ─── Search Bar ─── */}
+  <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
+    <select
+      value={searchType}
+      onChange={e => setSearchType(e.target.value)}
+      style={{ padding: '0.5rem', borderRadius: 6, border: '1px solid #ccc' }}
+    >
+      <option value="callType">Type</option>
+      <option value="description">Description</option>
+      <option value="address">Address</option>
+      <option value="date">Date</option>
+    </select>
+    <input
+      type="text"
+      placeholder={`Search by ${searchType}`}
+      value={searchQuery}
+      onChange={e => setSearchQuery(e.target.value)}
+      style={{ flex: 1, padding: '0.5rem', borderRadius: 6, border: '1px solid #ccc' }}
+    />
+  </div>
    {error && (
     <div style={{ color: '#dc3545', margin: '1rem 0' }}>
       {error}
