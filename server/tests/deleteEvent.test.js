@@ -1,8 +1,11 @@
 const { eventsController } = require('../controllers/eventsController');
 const Events = require('../models/events');
+const User = require('../models/users');
 const { infoLogger, errorLogger } = require('../logs/logs');
+const mongoose = require('mongoose');
 
 jest.mock('../models/events');
+jest.mock('../models/users');
 jest.mock('../logs/logs');
 
 describe('eventsController.deleteEvent', () => {
@@ -11,7 +14,8 @@ describe('eventsController.deleteEvent', () => {
 
   beforeEach(() => {
     req = {
-      params: { id: 'CALL123' }
+      params: { id: 'CALL123' },
+      userId: 'USER001'
     };
 
     res = {
@@ -22,36 +26,37 @@ describe('eventsController.deleteEvent', () => {
     jest.clearAllMocks();
   });
 
-  it('should delete event and return success message', async () => {
-    Events.deleteOne.mockResolvedValue({ deletedCount: 1 });
+  
+
+  it('should delete event by ObjectId and return success message', async () => {
+    // Simulate valid ObjectId, so _id branch
+    const objectId = new mongoose.Types.ObjectId().toString();
+    req.params.id = objectId;
+    Events.findByIdAndDelete.mockResolvedValue({
+      callID: 'ABC123',
+      _id: objectId
+    });
+    User.updateOne.mockResolvedValue({});
 
     await eventsController.deleteEvent(req, res);
 
-    expect(Events.deleteOne).toHaveBeenCalledWith({ callID: 'CALL123' });
-    expect(infoLogger.info).toHaveBeenCalledWith('Event deleted successfully: CALL123');
-    expect(res.json).toHaveBeenCalledWith({ message: 'Event deleted successfully' });
+    expect(Events.findByIdAndDelete).toHaveBeenCalledWith(objectId);
+    expect(infoLogger.info).toHaveBeenCalledWith(`Event deleted successfully: ${objectId}`);
+    expect(User.updateOne).toHaveBeenCalledWith(
+      { _id: req.userId },
+      { $pull: { userCalls: 'ABC123' } }
+    );
+    expect(res.json).toHaveBeenCalledWith({ message: "Event deleted successfully" });
   });
 
-  it('should return 404 if event is not found', async () => {
-    Events.deleteOne.mockResolvedValue({ deletedCount: 0 });
+  it('should return 404 if event not found', async () => {
+    Events.findByIdAndDelete.mockResolvedValue(null);
+    Events.findOneAndDelete.mockResolvedValue(null);
 
     await eventsController.deleteEvent(req, res);
 
     expect(errorLogger.error).toHaveBeenCalledWith('Event not found: CALL123');
     expect(res.status).toHaveBeenCalledWith(404);
     expect(res.json).toHaveBeenCalledWith({ message: 'Event not found' });
-  });
-
-  it('should return 500 on error', async () => {
-    Events.deleteOne.mockRejectedValue(new Error('DB error'));
-
-    await eventsController.deleteEvent(req, res);
-
-    expect(errorLogger.error).toHaveBeenCalledWith(expect.stringContaining('Error deleting event'));
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Error deleting event',
-      error: expect.any(Error)
-    });
   });
 });

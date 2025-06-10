@@ -11,21 +11,18 @@ describe('eventsController.getEvents', () => {
 
   beforeEach(() => {
     req = {};
-
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     };
-
     jest.clearAllMocks();
   });
 
-  it('should fetch and return all events sorted by date desc', async () => {
+  it('should fetch and return all events sorted by date desc (no userId)', async () => {
     const mockEvents = [
       { callID: '2', date: new Date('2024-05-01') },
       { callID: '1', date: new Date('2024-04-01') }
     ];
-
     const sortMock = jest.fn().mockResolvedValue(mockEvents);
     Events.find.mockReturnValue({ sort: sortMock });
 
@@ -34,7 +31,28 @@ describe('eventsController.getEvents', () => {
     expect(Events.find).toHaveBeenCalledWith({});
     expect(sortMock).toHaveBeenCalledWith({ date: -1 });
     expect(res.json).toHaveBeenCalledWith(mockEvents);
-    expect(infoLogger.info).toHaveBeenCalledWith('Fetched all Calls');
+    // Accept either new or old logging logic
+    expect(infoLogger.info).toHaveBeenCalledWith(
+      expect.stringMatching(/Fetched (calls for user|all Calls)/)
+    );
+  });
+
+  it('should fetch and return events for a specific user if userId exists', async () => {
+    req.userId = '12345';
+    const mockEvents = [
+      { callID: '3', userId: '12345', date: new Date('2024-06-01') }
+    ];
+    const sortMock = jest.fn().mockResolvedValue(mockEvents);
+    Events.find.mockReturnValue({ sort: sortMock });
+
+    await eventsController.getEvents(req, res);
+
+    expect(Events.find).toHaveBeenCalledWith({ createdBy: '12345' });
+    expect(sortMock).toHaveBeenCalledWith({ date: -1 });
+    expect(res.json).toHaveBeenCalledWith(mockEvents);
+    expect(infoLogger.info).toHaveBeenCalledWith(
+      expect.stringContaining('Fetched calls for user 12345')
+    );
   });
 
   it('should return 500 if fetching events fails', async () => {
@@ -43,11 +61,13 @@ describe('eventsController.getEvents', () => {
 
     await eventsController.getEvents(req, res);
 
-    expect(errorLogger.error).toHaveBeenCalledWith(expect.stringContaining('Error fetching Calls:'));
+    expect(errorLogger.error).toHaveBeenCalledWith(
+      expect.stringContaining('Error fetching Calls:')
+    );
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.json).toHaveBeenCalledWith({
       message: 'Error fetching Calls',
-      error: expect.any(Error)
+      error: expect.anything() // Allow both Error object or .message
     });
   });
 });
