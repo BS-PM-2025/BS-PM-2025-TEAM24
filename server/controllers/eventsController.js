@@ -106,6 +106,32 @@ exports.eventsController = {
             res.status(500).json({ message: "Error updating Call", error: err });
         }
     },
+    async cusupdateEvent(req, res) {
+      try {
+        /* ── 1. build a whitelist of mutable fields ─────────────── */
+        const allowed = ['callType', 'city', 'street',
+                        'houseNumber', 'description', 'date'];
+
+        const changes = {};
+        allowed.forEach(f => {
+          if (req.body[f] !== undefined) changes[f] = req.body[f];
+        });
+
+        /* ── 2. update ONLY the caller’s own event ──────────────── */
+        const event = await Events.findOneAndUpdate(
+          { _id: req.params.id, createdBy: req.userId },
+          { $set: changes },
+          { new: true }
+        );
+
+        if (!event) return res.status(404).json({ message: 'Call not found' });
+
+        return res.json({ message: 'Updated', event });
+      } catch (err) {
+        errorLogger.error(`Update error: ${err}`);
+        return res.status(500).json({ message: err.message });
+      }
+    },
     async deleteEvent(req, res) {
         try {
             const result = await Events.deleteOne({ callID: req.params.id });
