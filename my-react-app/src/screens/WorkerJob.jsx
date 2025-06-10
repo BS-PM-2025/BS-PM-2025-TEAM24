@@ -387,6 +387,27 @@ export default function WorkerJob({ onDelete }) {
       .catch(err => console.error('WorkerJob fetch error:', err));
   }, [token]);
 
+  const handleDone = async (callID) => {
+    try {
+      const res = await fetch(`http://localhost:8000/api/events/completeCall/${callID}`, {
+        method: 'POST',
+        headers: { 'x-access-token': token }
+      });
+      
+      if (!res.ok) throw new Error('Failed to complete call');
+      
+      // Flip the card
+      setFlippedCards(prev => ({ ...prev, [callID]: true }));
+      
+      // Update status
+      setJobs(prevJobs => prevJobs.map(j => 
+        j._id === callID ? { ...j, status: 'completed' } : j
+      ));
+    } catch (err) {
+      console.error('Error completing job:', err);
+    }
+  };
+
   const toggleFlip = (callID) => {
     setFlippedCards(prev => ({ ...prev, [callID]: !prev[callID] }));
   };
@@ -690,6 +711,17 @@ function getAddressForMap(call) {
                   >
                     {/* Front of card - Job details */}
                     <div style={styles.jobItemFront}>
+                      {job.status !== 'completed' && (
+                        <button
+                          style={styles.doneButton}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDone(job._id);
+                          }}
+                        >
+                          <FaCheck /> Mark as Done
+                        </button>
+                      )}
                       <h3 style={styles.jobTitle}>{job.callType}</h3>
                       <div style={styles.jobDetail}>
                         <FaCalendarAlt />
