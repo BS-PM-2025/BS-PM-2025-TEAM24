@@ -3,14 +3,14 @@ const { infoLogger, errorLogger } = require("../logs/logs");
 const User = require('../models/users'); // Assuming you're storing user data here
 
 exports.eventsController = {
-    async addEvent(req, res) {
+     async addEvent(req, res) {
         try {
           const user = await User.findById(req.userId);
           if (!user) {
             return res.status(403).json({ message: "Unauthorized" });
           }
       
-          const { callType, city, street, houseNumber, description,status } = req.body;
+          const { callType, city, street, houseNumber,date, description,status } = req.body;
       
           // Validation (basic server-side)
           if (!callType || !city || !street || !description ||!status) {
@@ -19,8 +19,7 @@ exports.eventsController = {
       
           const costumerdetails = [
             `Name: ${user.name}`,
-            `Age: ${user.age}`,
-            `Gender: ${user.gender}`
+            `Age: ${user.age}`
           ];
       
           const newEvent = new Events({
@@ -28,9 +27,12 @@ exports.eventsController = {
             city,
             street,
             houseNumber: houseNumber || 0,
+            date,
             description,
             costumerdetails, // 🧠 This will be stored as an array of strings
-            status
+            status,
+            createdBy: req.userId
+
             // callID and date will be set automatically
           });
       
