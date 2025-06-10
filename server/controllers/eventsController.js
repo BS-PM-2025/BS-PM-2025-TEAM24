@@ -218,7 +218,24 @@ exports.eventsController = {
         return res.status(500).json({ message: err.message });
     }
     },
-  
+    async completeCall(req, res) {
+      try {
+        const call = await Events.findByIdAndUpdate(
+          req.params.id,          // :id parameter
+          { status: 'completed' },
+          { new: true }           // return the updated doc
+        );
+
+        if (!call) {
+          return res.status(404).json({ message: 'Call not found' });
+        }
+
+        res.json(call);           // send updated call back
+      } catch (err) {
+        errorLogger.error(`completeCall error: ${err}`);
+        res.status(500).json({ message: 'Server error' });
+      }
+    },
 };
 
 
