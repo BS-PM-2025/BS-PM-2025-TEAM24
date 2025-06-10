@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {FaInfoCircle , FaUser, FaHome,FaTools , FaSignOutAlt } from 'react-icons/fa';
+import {FaInfoCircle , FaUser, FaHome,FaTools , FaSignOutAlt, FaSearch } from 'react-icons/fa';
 import logo from '../assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
 
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundImage: 'url("https://images.unsplash.com/photo-1570129477492-45c003edd2be")',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
+    background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)',
     position: 'fixed',
     width: '100%',
     height: '100%',
@@ -19,8 +16,8 @@ const styles = {
     flexDirection: 'column',
   },
   header: {
-    backgroundColor: 'rgba(74, 111, 165, 0.9)',
-    padding: '1.4rem 2rem',
+    background: 'linear-gradient(135deg, #2b5876 0%, #4e4376 100%)',
+    padding: '1.2rem 2rem',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -28,12 +25,14 @@ const styles = {
     position: 'sticky',
     top: 0,
     zIndex: 1000,
+    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
   },
   logo: {
     display: 'flex',
     alignItems: 'center',
     fontSize: '1.8rem',
     fontWeight: 'bold',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   logoImage: {
     width: '40px',
@@ -41,41 +40,40 @@ const styles = {
     marginRight: '10px',
   },
   logoHighlight: {
-    color: '#ffde59',
-  },
-  menuIcon: {
-    fontSize: '1.6rem',
-    cursor: 'pointer',
-    marginLeft: '1.5rem',
+    color: '#4fd1c5',
   },
   menuItem: {
     display: 'flex',
     alignItems: 'center',
-    padding: '0.4rem 0.8rem',
+    padding: '0.6rem 1.2rem',
     fontSize: '1rem',
     color: 'white',
     backgroundColor: 'transparent',
     cursor: 'pointer',
-    borderRadius: '6px',
-    transition: 'background 0.3s ease',
-    gap: '0.5rem'
+    borderRadius: '30px',
+    transition: 'all 0.3s ease',
+    gap: '0.5rem',
+    margin: '0 0.2rem',
+    '&:hover': {
+      backgroundColor: 'rgba(255,255,255,0.15)',
+    },
   },
   activeMenuItem: {
-  backgroundColor: 'white',
-  color: '#4a6fa5',
-  fontWeight: 'bold',
-  borderRadius: '999px',
-  padding: '0.4rem 1.2rem',
-  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-},
-rightTitle: {
-  color: 'white',
-  fontSize: '2.1rem',
-  fontWeight: 'bold',
-  display: 'flex',
-  alignItems: 'center',
-  gap: '0.5rem'
-},
+    backgroundColor: 'white',
+    color: '#2b5876',
+    fontWeight: '600',
+    borderRadius: '30px',
+    padding: '0.6rem 1.4rem',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+  },
+  rightTitle: {
+    color: 'white',
+    fontSize: '2.1rem',
+    fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
+  },
   welcome: {
     fontSize: '2rem',
     marginBottom: '1rem',
@@ -107,7 +105,6 @@ rightTitle: {
     maxWidth: '500px',
     boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
     position: 'relative', 
-
   },
   modalTitle: {
     marginBottom: '1.5rem',
@@ -135,12 +132,11 @@ rightTitle: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    flexWrap: 'wrap', // responsive for small screens
+    flexWrap: 'wrap',
     padding: '4rem 9%',
     gap: '2rem',
-    alignItems: 'stretch',  // ⬅️ ensures both boxes align in height
+    alignItems: 'stretch',
     overflowY:'auto'
-
   },
   contentBox: {
     flex: '1 1 45%',
@@ -161,7 +157,6 @@ rightTitle: {
     marginTop:'2.5rem',
     border: '3px solid #ccc',
   },
-
   sectionTitle: {
     fontSize: '1.3rem',
     color: '#4a6fa5',
@@ -172,13 +167,13 @@ rightTitle: {
   },
   ratingTitle: {
     fontSize: '2rem',
-    color: '#4a6fa5', // darker blue to match header/logo
+    color: '#4a6fa5',
     marginBottom: '1rem'
   },
   stars: {
     display: 'flex',
     justifyContent: 'center',
-    color: '#375a8c',  // darker blue
+    color: '#375a8c',
     marginBottom: '1rem',
     gap: '10px'
   },
@@ -212,6 +207,29 @@ rightTitle: {
     paddingBottom: '0.5rem',
     borderBottom: '1px solid #eee',
     marginTop:'-15px'
+  },
+  searchContainer: {
+    margin: '1rem 0',
+    position: 'relative',
+    width: '100%',
+    maxWidth: '600px',
+    marginInline: 'auto'
+  },
+  searchInput: {
+    width: '100%',
+    padding: '12px 20px 12px 40px',
+    borderRadius: '25px',
+    border: '2px solid #4a6fa5',
+    fontSize: '1rem',
+    outline: 'none',
+    boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+  },
+  searchIcon: {
+    position: 'absolute',
+    left: '15px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    color: '#4a6fa5'
   }
 };
 
@@ -222,9 +240,11 @@ export default function CustomerMain() {
   const [ratings, setRatings] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
   const [calls, setCalls] = useState([]);
+  const [allCalls, setAllCalls] = useState([]); // Store all calls for filtering
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ callType: '', city:'',street:'',houseNumber:'', description: '', status:''});
   const [editingCallId, setEditingCallId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchRatings = async () => {
     const storedUser = JSON.parse(localStorage.getItem("userData"));
@@ -258,6 +278,7 @@ export default function CustomerMain() {
       console.error("Error fetching ratings:", err);
     }
   };
+
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('userData'));
     if (storedUser && storedUser.name) {
@@ -267,6 +288,26 @@ export default function CustomerMain() {
     fetchRatings();
     fetchAllCalls();
   }, []);
+
+  // Filter calls based on search term
+  useEffect(() => {
+    if (searchTerm === '') {
+      setCalls(allCalls);
+    } else {
+      const filtered = allCalls.filter(call => {
+        const searchLower = searchTerm.toLowerCase();
+        return (
+          call.callID.toString().includes(searchLower) ||
+          call.callType.toLowerCase().includes(searchLower) ||
+          call.description.toLowerCase().includes(searchLower) ||
+          `${call.city}, ${call.street} ${call.houseNumber}`.toLowerCase().includes(searchLower) ||
+          new Date(call.date).toLocaleDateString().toLowerCase().includes(searchLower) ||
+          call.costumerdetails.join(', ').toLowerCase().includes(searchLower)
+        );
+      });
+      setCalls(filtered);
+    }
+  }, [searchTerm, allCalls]);
 
   const handleMenuSelect = (option) => {
     setMenuOpen(false);
@@ -300,7 +341,7 @@ export default function CustomerMain() {
   
       if (response.ok) {
         alert("Call updated successfully.");
-        fetchAllCalls(); // Refresh the list after update
+        fetchAllCalls();
         setShowModal(false);
       } else {
         alert("❌ Failed to update call: " + result.message);
@@ -311,7 +352,6 @@ export default function CustomerMain() {
     }
   };
   
-
   const handleDeleteCall = async (callID) => {
     const storedUser = JSON.parse(localStorage.getItem('userData'));
     const shouldDelete = window.confirm('Are you sure you want to delete this call?');
@@ -358,6 +398,7 @@ export default function CustomerMain() {
 
       if (response.ok) {
         setCalls(result);
+        setAllCalls(result); // Store all calls for filtering
         calls.map((call) => (setFormData({ callType: call.callType,city:call.city, street:call.street,
           houseNumber:call.houseNumber,  description: call.description, status:call.status})
         ));
@@ -435,6 +476,19 @@ export default function CustomerMain() {
       <div style={styles.mainContentRow}>
         <div style={styles.contentBox}>
             <h2 style={styles.welcome}>Welcome {userName}!</h2>
+            
+            {/* Search Bar */}
+            <div style={styles.searchContainer}>
+              <FaSearch style={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Search by Call ID, Type, Description, Address, Date, or Customer..."
+                style={styles.searchInput}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
             <p style={styles.paragraph}>
                 <strong> All Website's Calls : </strong>            
             </p>
@@ -448,7 +502,7 @@ export default function CustomerMain() {
               backgroundColor: '#f9f9f9'
             }}>
               {calls.length === 0 ? (
-                <p>No calls available for your work type.</p>
+                <p>No calls available for at the website.</p>
               ) : (
                 calls.map((call) => (
                   <div key={call.callID} style={{
@@ -492,7 +546,6 @@ export default function CustomerMain() {
                       gap: '1.2rem',
                       marginLeft: '2rem',
                       marginTop: '7rem'
-
                     }}>
                       <button
                         style={{
