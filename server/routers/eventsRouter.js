@@ -12,6 +12,7 @@ eventsRouter.post('/getLocationDetails', eventsController.getLocationDetails);
 eventsRouter.delete('/applicants/:id',  verifyToken,  eventsController.unapply);
 eventsRouter.get('/myApplications',               verifyToken,eventsController.getMyApplications);
 eventsRouter.get('/getApprovedCalls',  verifyToken, eventsController.getMyApprovedCalls);
+eventsRouter.put('/update/:id',          verifyToken, eventsController.cusupdateEvent);
 eventsRouter.post('/completeCall/:id', verifyToken, eventsController.completeCall);
 eventsRouter.post('/approve/:id/:workerId',       verifyToken, eventsController.approveWorker);
 module.exports = { eventsRouter };
