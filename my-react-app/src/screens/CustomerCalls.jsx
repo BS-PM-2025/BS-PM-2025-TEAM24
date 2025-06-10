@@ -703,6 +703,26 @@ const [initialMapZoom, setInitialMapZoom] = useState(16);
     }
   };
 
+    const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this call?')) return;
+    
+    const storedUser = JSON.parse(localStorage.getItem('userData'));
+    if (!storedUser?.accessToken) return;
+
+    try {
+      const res = await fetch(`http://localhost:8000/api/events/deleteEvent/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-access-token': storedUser.accessToken }
+      });
+
+      if (!res.ok) throw new Error('Failed to delete call');
+
+      setCalls(prev => prev.filter(call => call._id !== id));
+    } catch (e) {
+      console.error(e);
+      alert('Error deleting call: ' + e.message);
+    }
+  };
   const handleMenuSelect = (option) => {
     if (option === 'MainPage') navigate('/CustomerMain');
     else if (option === 'MyCalls') navigate('/CustomerCalls');
@@ -1792,7 +1812,7 @@ function getEnglishPart(str) {
 
       {/* MAIN CONTENT */}
    <div style={styles.mainContent}>
-    
+
    {error && (
     <div style={{ color: '#dc3545', margin: '1rem 0' }}>
       {error}
