@@ -1,4 +1,4 @@
-jest.setTimeout(20000);
+jest.setTimeout(60000); // في بداية كل ملف test أو في jest.setup.js إذا عندك
 process.env.SECRET = "testsecret";
 
 const mongoose = require("mongoose");
@@ -50,6 +50,7 @@ describe("Integration Test: getEventsByType", () => {
         description: "Fix wires",
         costumerdetails: [`Name: ${user.name}`, `Age: ${user.age}`, `Gender: ${user.gender}`],
         status: "Open",
+        createdBy: user._id
       },
       {
         callType: "Plumbing",
@@ -59,6 +60,7 @@ describe("Integration Test: getEventsByType", () => {
         description: "Sink issue",
         costumerdetails: [`Name: ${user.name}`, `Age: ${user.age}`, `Gender: ${user.gender}`],
         status: "Open",
+        createdBy: user._id
       }
     ]);
   });

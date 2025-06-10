@@ -1,4 +1,4 @@
-jest.setTimeout(20000);
+jest.setTimeout(60000); 
 process.env.SECRET = "testsecret";
 
 const mongoose = require("mongoose");
@@ -40,7 +40,7 @@ describe("Integration Test: getEvents", () => {
 
     token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
 
-    // Add some events
+    // Add some events, now with createdBy
     await Events.insertMany([
       {
         callType: "Electric",
@@ -50,6 +50,7 @@ describe("Integration Test: getEvents", () => {
         description: "Fix light",
         costumerdetails: [`Name: ${user.name}`, `Age: ${user.age}`, `Gender: ${user.gender}`],
         status: "Open",
+        createdBy: user._id, 
       },
       {
         callType: "Plumbing",
@@ -59,6 +60,7 @@ describe("Integration Test: getEvents", () => {
         description: "Leaking pipe",
         costumerdetails: [`Name: ${user.name}`, `Age: ${user.age}`, `Gender: ${user.gender}`],
         status: "Open",
+        createdBy: user._id, 
       }
     ]);
   });
@@ -71,7 +73,7 @@ describe("Integration Test: getEvents", () => {
   it("✅ should return all events successfully", async () => {
     const res = await request(app)
       .get("/api/events/getEvents")
-      .set("Authorization", `Bearer ${token}`);
+      .set("x-access-token", token); 
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);

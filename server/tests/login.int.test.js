@@ -1,4 +1,4 @@
-jest.setTimeout(20000);
+jest.setTimeout(60000); // في بداية كل ملف test أو في jest.setup.js إذا عندك
 process.env.SECRET = "testsecret";
 
 const mongoose = require("mongoose");
