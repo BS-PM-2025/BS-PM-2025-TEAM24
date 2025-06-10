@@ -9,4 +9,7 @@ eventsRouter.post('/addEvent', eventsController.addEvent); // Note: Adjusted rou
 eventsRouter.delete('/deleteEvent/:id', eventsController.deleteEvent);
 eventsRouter.put('/updateEvent/:callID', eventsController.updateEvent);
 eventsRouter.post('/getLocationDetails', eventsController.getLocationDetails);
+eventsRouter.delete('/applicants/:id',  verifyToken,  eventsController.unapply);
+eventsRouter.get('/myApplications',               verifyToken,eventsController.getMyApplications);
+eventsRouter.get('/getApprovedCalls',  verifyToken, eventsController.getMyApprovedCalls);
 module.exports = { eventsRouter };
