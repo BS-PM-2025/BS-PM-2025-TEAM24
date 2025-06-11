@@ -15,4 +15,5 @@ eventsRouter.get('/getApprovedCalls',  verifyToken, eventsController.getMyApprov
 eventsRouter.put('/update/:id',          verifyToken, eventsController.cusupdateEvent);
 eventsRouter.post('/completeCall/:id', verifyToken, eventsController.completeCall);
 eventsRouter.post('/approve/:id/:workerId',       verifyToken, eventsController.approveWorker);
+eventsRouter.post('/applicants/:id',              verifyToken, eventsController.applyToCall);
 module.exports = { eventsRouter };
