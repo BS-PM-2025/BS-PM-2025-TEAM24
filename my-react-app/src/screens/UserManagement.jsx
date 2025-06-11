@@ -16,17 +16,20 @@ const container = {
   backgroundSize: 'cover',    // Scale to cover full screen
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat', // Avoid tiling
-  overflow: 'hidden',
+  overflow: 'auto',
   zIndex: -1                  // Keep it behind all content
 };
 const header= {
-    backgroundColor: '#4a6fa5',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-    padding: '1rem 2rem',
+    background: 'linear-gradient(135deg, #2b5876 0%, #4e4376 100%)',
+    padding: '1.2rem 2rem',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    color:'white'
+    color: 'white',
+    position: 'sticky',
+    top: 0,
+    zIndex: 1000,
+    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
   };
 const logoImage= {
     width: '40px',
@@ -34,7 +37,7 @@ const logoImage= {
     marginRight: '10px'
   };
 const logoHighlight= {
-    color: '#ffde59'
+    color: '#4fd1c5',
   };
 const tableStyle = {
   width: '100%',
@@ -78,24 +81,28 @@ const buttonStyle = {
   transition: 'background-color 0.3s ease',
 };
 const menuItem= {
-    display: 'flex',
+   display: 'flex',
     alignItems: 'center',
-    padding: '0.4rem 0.8rem',
+    padding: '0.6rem 1.2rem',
     fontSize: '1rem',
     color: 'white',
     backgroundColor: 'transparent',
     cursor: 'pointer',
-    borderRadius: '6px',
-    transition: 'background 0.3s ease',
-    gap: '0.5rem'
+    borderRadius: '30px',
+    transition: 'all 0.3s ease',
+    gap: '0.5rem',
+    margin: '0 0.2rem',
+    '&:hover': {
+      backgroundColor: 'rgba(255,255,255,0.15)',
+    },
   };
   const activeMenuItem= {
   backgroundColor: 'white',
-  color: '#4a6fa5',
-  fontWeight: 'bold',
-  borderRadius: '999px',
-  padding: '0.4rem 1.2rem',
-  boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+    color: '#2b5876',
+    fontWeight: '600',
+    borderRadius: '30px',
+    padding: '0.6rem 1.4rem',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
 };
 const rightTitle= {
   color: 'white',
@@ -108,9 +115,9 @@ const rightTitle= {
 const logo2= {
     display: 'flex',
     alignItems: 'center',
-    fontSize: '2rem',
-    fontWeight: '900',
-    color: 'white'
+    fontSize: '1.8rem',
+    fontWeight: 'bold',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   };
 
 const UsersList = () => {
@@ -118,7 +125,9 @@ const UsersList = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const [userStats, setUserStats] = useState({ total: 0, admins: 0, workers: 0, customers: 0 });
-
+  const [ratingsModalOpen, setRatingsModalOpen] = useState(false);
+  const [currentWorker, setCurrentWorker] = useState(null);
+  const [workerRatings, setWorkerRatings] = useState({ avg: 0, count: 0, list: [] });
   useEffect(() => {
     const fetchStats = async () => {
       const user = JSON.parse(localStorage.getItem('userData'));
@@ -208,6 +217,31 @@ const UsersList = () => {
       navigate('/login');
     }
   };
+
+  const fetchWorkerRatings = async (workerId) => {
+  const user = JSON.parse(localStorage.getItem('userData'));
+  try {
+    // Get avg & count
+    const avgRes  = await fetch(`http://localhost:8000/api/workRates/avg/${workerId}`, {
+      headers: { 'x-access-token': user.accessToken }
+    });
+    const { average = 0, count = 0 } = await avgRes.json();
+
+    // Get feedback list
+    const listRes = await fetch(`http://localhost:8000/api/workRates/${workerId}`, {
+      headers: { 'x-access-token': user.accessToken }
+    });
+    const list = await listRes.json();
+
+    setWorkerRatings({ avg: average, count, list });
+    setRatingsModalOpen(true);
+  } catch (err) {
+    alert('Failed to load ratings.');
+    setWorkerRatings({ avg: 0, count: 0, list: [] });
+    setRatingsModalOpen(true);
+  }
+};
+
 
   return (
     <div style={container}>
@@ -315,13 +349,73 @@ const UsersList = () => {
                   <td style={tdStyle}>{user.isWorker ? 'Worker' : user.isAdmin ? 'Admin' : 'Customer'}</td>
                   <td style={tdStyle}>{user.gender}</td>
                   <td style={tdStyle}>
-                    <button style={buttonStyle} onClick={() => deleteUser(user._id)}>Delete</button>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
+                      <button style={buttonStyle} onClick={() => deleteUser(user._id)}>Delete User</button>
+                      {user.isWorker && (
+                        <button
+                          style={{
+                            ...buttonStyle,
+                            backgroundColor: '#375a8c',
+                            marginTop: 0,      // remove if using gap in the flex
+                          }}
+                          onClick={() => {
+                            setCurrentWorker(user);
+                            fetchWorkerRatings(user._id);
+                          }}
+                        >
+                          View Ratings
+                        </button>
+                      )}
+                    </div>
                   </td>
+
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        {ratingsModalOpen && (
+          <div style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)',
+            display: 'flex', justifyContent: 'center', alignItems: 'center',
+            zIndex: 3000
+          }}>
+            <div style={{
+              background: '#fff', borderRadius: 12, minWidth: 360, maxWidth: 450,
+              padding: 28, position: 'relative', boxShadow: '0 12px 28px rgba(0,0,0,.18)'
+            }}>
+              <button
+                onClick={() => setRatingsModalOpen(false)}
+                style={{
+                  position: 'absolute', top: 10, right: 16, border: 'none',
+                  background: 'transparent', fontSize: 26, cursor: 'pointer', color: '#888'
+                }}
+              >&times;</button>
+              <h2 style={{ color: '#4a6fa5', marginBottom: 6 }}>
+                Ratings for <span style={{ color:'#375a8c' }}>{currentWorker?.name}</span>
+              </h2>
+              <div style={{ margin: '18px 0' }}>
+                <b>Average Rating:</b> {workerRatings.avg?.toFixed(2) || 0} / 5<br />
+                <b>Total Ratings:</b> {workerRatings.count}
+              </div>
+              <div style={{ maxHeight: 250, overflowY: 'auto' }}>
+                {workerRatings.list.length === 0 ? (
+                  <i style={{ color:'#888' }}>No feedbacks yet.</i>
+                ) : (
+                  <ul>
+                    {workerRatings.list.map((r, i) => (
+                      <li key={r._id || i} style={{ marginBottom: 10 }}>
+                        <b>{r.customerName || 'Customer'}:</b>
+                        <span> {r.rate}★</span>
+                        <div style={{ fontStyle: 'italic', color: '#333', marginLeft: 8 }}>{r.feedback}</div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {FaUsers,FaTools, FaUser, FaEdit, FaLock, FaHome, FaEnvelope, FaVenusMars, FaCalendarAlt, FaMapMarkerAlt, FaSignOutAlt,FaInfoCircle,FaBars } from 'react-icons/fa';
+import {FaUsers,FaTools, FaUser, FaEdit,FaListAlt, FaLock, FaHome, FaEnvelope, FaVenusMars, FaCalendarAlt, FaMapMarkerAlt, FaSignOutAlt,FaInfoCircle,FaBars } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -396,7 +396,8 @@ const ProfilePage = () => {
         navigate('/CustomerMain');
     }
     else if (option === 'MyWorks') navigate('/MyWorks');
-    else if (option === 'MyCalls') navigate('/MyCalls');
+    else if (option === 'MyRequests') navigate('/WorkerRequests');
+    else if (option === 'MyCalls') navigate('/CustomerCalls');
     else if (option === 'UsersList') navigate('/UserManagement');
     else if (option === 'Profile') navigate('/ProfilePage');
     else if (option === 'Help') navigate('/HelpPage');
@@ -407,42 +408,53 @@ const ProfilePage = () => {
   };
 
   // All styles defined as a JavaScript object
-  const styles = {
-    select: { width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', fontSize: '14px' },
+const styles = {
+  select: {
+    width: '100%',
+    padding: '12px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '1rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    transition: 'all 0.2s ease',
+    marginBottom: '1rem',
+    '&:focus': {
+      borderColor: '#4fd1c5',
+      boxShadow: '0 0 0 3px rgba(79, 209, 197, 0.2)',
+      outline: 'none',
+    }
+  },
   container: {
-    position: 'fixed',          // Ensure it fills the screen
+    position: 'fixed',
     top: 0,
     left: 0,
-    width: '100vw',             // Full viewport width
-    height: '100vh', 
+    width: '100vw',
+    height: '100vh',
     minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
-    backgroundImage: 'url("https://images.unsplash.com/photo-1570129477492-45c003edd2be")',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat' ,// Avoid tiling
+    background: 'linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%)',
     overflow: 'hidden'
-
   },
   header: {
     position: 'fixed',
     width: '97%',
-    backgroundColor: '#4a6fa5',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-    padding: '1rem 2rem',
+    background: 'linear-gradient(135deg, #2b5876 0%, #4e4376 100%)',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+    padding: '1.2rem 2rem',
     display: 'flex',
     color: 'white',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    zIndex: 1000
   },
-  
   logo: {
     display: 'flex',
     alignItems: 'center',
     fontSize: '1.8rem',
     fontWeight: 'bold',
-    color: 'white'
+    color: 'white',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   logoImage: {
     width: '40px',
@@ -450,13 +462,12 @@ const ProfilePage = () => {
     marginRight: '10px'
   },
   logoHighlight: {
-    color: '#ffde59'
+    color: '#4fd1c5'
   },
   nav: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1.5rem',
-
+    gap: '1rem',
   },
   navLink: {
     display: 'flex',
@@ -465,269 +476,326 @@ const ProfilePage = () => {
     textDecoration: 'none',
     color: 'white',
     fontWeight: 500,
-    transition: 'all 0.3s ease'
+    transition: 'all 0.3s ease',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    padding: '0.6rem 1.2rem',
+    borderRadius: '30px',
+    '&:hover': {
+      backgroundColor: 'rgba(255,255,255,0.15)',
+    }
   },
   navActive: {
-    color: '#ffde59',
-    fontWeight: 600
+    backgroundColor: 'white',
+    color: '#2b5876',
+    fontWeight: '600',
+    borderRadius: '30px',
+    padding: '0.6rem 1.4rem',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
   },
-    main: {
-      marginTop: '80px', // adjust based on header height
-      display: 'flex',
-      flex: 1,
-      maxWidth: '1200px',
-      margin: '5.5rem auto',
-      width: '100%',
-      gap: '2rem',
-      padding: '0 1rem'
-    },
-    sidebar: {
-      width: '280px',
-      flexShrink: 0
-    },
-    userCard: {
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-      padding: '1.5rem',
-      textAlign: 'center',
-      marginBottom: '1.5rem'
-    },
-    userAvatar: {
-      width: '80px',
-      height: '80px',
-      borderRadius: '50%',
-      backgroundColor: '#4a6fa5',
-      color: 'white',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      margin: '0 auto 1rem'
-    },
-    avatarIcon: {
-      fontSize: '2rem'
-    },
-    userName: {
-      fontSize: '1.2rem',
-      marginBottom: '0.5rem'
-    },
-    userRole: {
-      backgroundColor: 'rgba(74, 111, 165, 0.1)',
-      color: '#4a6fa5',
-      padding: '0.25rem 0.75rem',
-      borderRadius: '20px',
-      fontSize: '0.8rem',
-      fontWeight: 600,
-      display: 'inline-block'
-    },
-    profileTabs: {
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-      padding: '0.5rem 0'
-    },
-    tabBtn: {
-      width: '100%',
-      padding: '0.75rem 1.5rem',
-      border: 'none',
-      background: 'none',
-      textAlign: 'left',
-      fontSize: '0.95rem',
-      color: '#343a40',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.75rem',
-      transition: 'all 0.3s ease'
-    },
-    activeTab: {
-      backgroundColor: 'rgba(74, 111, 165, 0.1)',
-      color: '#4a6fa5',
-      borderLeft: '3px solid #4a6fa5'
-    },
-    tabIcon: {
-      fontSize: '1rem',
-      width: '20px'
-    },
-    content: {
-      flex: 1,
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-      padding: '2rem'
-    },
-    section: {
-      marginBottom: '1.5rem',
-      maxHeight: 'calc(100vh - 200px)', // fits within the screen
-      overflowY: 'auto',
-      overflowX: 'hidden'
-    },
-    sectionTitle: {
-      fontSize: '1.3rem',
-      color: '#4a6fa5',
-      marginBottom: '1.5rem',
-      paddingBottom: '0.5rem',
-      borderBottom: '1px solid #eee'
-    },
-    formGroup: {
-      marginBottom: '1.25rem'
-    },
-    formRow: {
-      display: 'flex',
-      gap: '1rem'
-    },
-    formLabel: {
-      display: 'block',
-      marginBottom: '0.5rem',
-      fontWeight: 500,
-      color: '#343a40',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem'
-    },
-    inputIcon: {
-      color: '#4a6fa5',
-      fontSize: '0.9rem'
-    },
-    formInput: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '1px solid #ddd',
-      borderRadius: '8px',
-      fontSize: '1rem',
-      transition: 'all 0.3s ease'
-    },
-    formInputFocus: {
+  main: {
+    marginTop: '80px',
+    display: 'flex',
+    flex: 1,
+    maxWidth: '1400px',
+    margin: '6rem auto',
+    width: '90%',
+    gap: '2rem',
+    padding: '0 1rem'
+  },
+  sidebar: {
+    width: '300px',
+    flexShrink: 0
+  },
+  userCard: {
+    backgroundColor: 'white',
+    borderRadius: '16px',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+    padding: '2rem',
+    textAlign: 'center',
+    marginBottom: '2rem'
+  },
+  userAvatar: {
+    width: '100px',
+    height: '100px',
+    borderRadius: '50%',
+    backgroundColor: '#2b5876',
+    color: 'white',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 auto 1.5rem',
+    fontSize: '2.5rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  },
+  userName: {
+    fontSize: '1.4rem',
+    marginBottom: '0.5rem',
+    color: '#2c3e50',
+    fontWeight: '600',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  },
+  userRole: {
+    backgroundColor: 'rgba(43, 88, 118, 0.1)',
+    color: '#2b5876',
+    padding: '0.4rem 1rem',
+    borderRadius: '30px',
+    fontSize: '0.9rem',
+    fontWeight: 600,
+    display: 'inline-block',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  },
+  profileTabs: {
+    backgroundColor: 'white',
+    borderRadius: '16px',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+    padding: '0.5rem 0'
+  },
+  tabBtn: {
+    width: '100%',
+    padding: '1rem 1.5rem',
+    border: 'none',
+    background: 'none',
+    textAlign: 'left',
+    fontSize: '1rem',
+    color: '#4a5568',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+    transition: 'all 0.3s ease',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    '&:hover': {
+      backgroundColor: 'rgba(79, 209, 197, 0.1)',
+    }
+  },
+  activeTab: {
+    backgroundColor: 'rgba(79, 209, 197, 0.15)',
+    color: '#2b5876',
+    borderLeft: '4px solid #4fd1c5',
+    fontWeight: '600'
+  },
+  tabIcon: {
+    fontSize: '1.2rem',
+    width: '24px',
+    color: '#4a5568'
+  },
+  content: {
+    flex: 1,
+    backgroundColor: 'white',
+    borderRadius: '16px',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+    padding: '2.5rem'
+  },
+  section: {
+    marginBottom: '2rem',
+    maxHeight: 'calc(100vh - 200px)',
+    overflowY: 'auto',
+    overflowX: 'hidden'
+  },
+  sectionTitle: {
+    fontSize: '1.5rem',
+    color: '#2c3e50',
+    marginBottom: '1.5rem',
+    paddingBottom: '0.8rem',
+    borderBottom: '1px solid #e2e8f0',
+    fontWeight: '600',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  },
+  formGroup: {
+    marginBottom: '1.5rem'
+  },
+  formRow: {
+    display: 'flex',
+    gap: '1.5rem',
+    marginBottom: '1.5rem'
+  },
+  formLabel: {
+    display: 'block',
+    marginBottom: '0.8rem',
+    fontWeight: '600',
+    color: '#2c3e50',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  },
+  inputIcon: {
+    color: '#4fd1c5',
+    fontSize: '1rem'
+  },
+  formInput: {
+    width: '100%',
+    padding: '12px',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    fontSize: '1rem',
+    transition: 'all 0.3s ease',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    '&:focus': {
+      borderColor: '#4fd1c5',
+      boxShadow: '0 0 0 3px rgba(79, 209, 197, 0.2)',
       outline: 'none',
-      borderColor: '#4a6fa5',
-      boxShadow: '0 0 0 2px rgba(74, 111, 165, 0.2)'
-    },
-    formInputDisabled: {
-      backgroundColor: '#f5f5f5',
-      color: '#666',
-      cursor: 'not-allowed'
-    },
-    formActions: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '1rem',
-      marginTop: '2rem',
-      paddingTop: '1.5rem',
-      borderTop: '1px solid #eee'
-    },
-    saveBtn: {
-      backgroundColor: '#4a6fa5',
-      color: 'white',
-      border: 'none',
-      borderRadius: '8px',
-      padding: '0.75rem 1.5rem',
-      fontSize: '1rem',
-      fontWeight: 500,
-      cursor: 'pointer',
-      transition: 'all 0.3s ease'
-    },
-    saveBtnHover: {
-      backgroundColor: '#166088'
-    },
-    cancelBtn: {
-      backgroundColor: '#f0f0f0',
-      color: '#666',
-      border: 'none',
-      borderRadius: '8px',
-      padding: '0.75rem 1.5rem',
-      fontSize: '1rem',
-      fontWeight: 500,
-      cursor: 'pointer',
-      transition: 'all 0.3s ease'
-    },
-    cancelBtnHover: {
-      backgroundColor: '#e0e0e0'
-    },
-    loading: {
-      textAlign: 'center',
-      padding: '2rem'
-    },
-    error: {
-      color: 'red',
-      textAlign: 'center',
-      padding: '1rem'
-    },
-    mapModal: (showMap) => ({
-        display: showMap ? 'block' : 'none',
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '90%',
-        height: '80%',
-        backgroundColor: '#fff',
-        zIndex: 1000,
-        border: '2px solid #4a6fa5',
-        borderRadius: '10px',
-        overflow: 'hidden',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.2)'
-      }),
-      closeBtn: {
-        position: 'absolute',
-        top: 10,
-        left: 10,
-        zIndex: 1001,
-        padding: '6px 14px',
-        backgroundColor: '#dc3545',
-        color: 'white',
-        border: 'none',
-        borderRadius: '4px',
-        cursor: 'pointer',
-        fontSize: '14px'
-      },
-      mapContainer: {
-        width: '100%',
-        height: '100%'
-      },
-      mapButton: {
-        marginTop: '10px',
-        padding: '8px 16px',
-        border: '1px solid #ccc',
-        borderRadius: '6px',
-        backgroundColor: '#4a6fa5',
-        color: 'white',
-        cursor: 'pointer'
-      },
-      menuIcon: {
-        fontSize: '1.6rem',
-        color: 'white',
-        cursor: 'pointer',
-        marginLeft: '1.5rem',
-      },
-      menuItem: {
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0.4rem 0.8rem',
-        fontSize: '1rem',
-        color: 'white',
-        backgroundColor: 'transparent',
-        cursor: 'pointer',
-        borderRadius: '6px',
-        transition: 'background 0.3s ease',
-        gap: '0.5rem'
-      },
-      activeMenuItem: {
-      backgroundColor: 'white',
-      color: '#4a6fa5',
-      fontWeight: 'bold',
-      borderRadius: '999px',
-      padding: '0.4rem 1.2rem',
-      boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-    },
-    rightTitle: {
-      color: 'white',
-      fontSize: '2.1rem',
-      fontWeight: 'bold',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem'
-    },
-  };
+    }
+  },
+  formInputDisabled: {
+    backgroundColor: '#f8fafc',
+    color: '#718096',
+    cursor: 'not-allowed'
+  },
+  formActions: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: '1.5rem',
+    marginTop: '2.5rem',
+    paddingTop: '1.5rem',
+    borderTop: '1px solid #e2e8f0'
+  },
+  saveBtn: {
+    backgroundColor: '#4fd1c5',
+    background: 'linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '30px',
+    padding: '0.8rem 1.8rem',
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    boxShadow: '0 2px 10px rgba(79, 209, 197, 0.3)',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 12px rgba(79, 209, 197, 0.4)',
+    }
+  },
+  cancelBtn: {
+    backgroundColor: '#f8fafc',
+    color: '#718096',
+    border: '1px solid #e2e8f0',
+    borderRadius: '30px',
+    padding: '0.8rem 1.8rem',
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    '&:hover': {
+      backgroundColor: '#edf2f7',
+    }
+  },
+  loading: {
+    textAlign: 'center',
+    padding: '2rem',
+    color: '#4a5568',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  },
+  error: {
+    color: '#e53e3e',
+    textAlign: 'center',
+    padding: '1rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    fontWeight: '600'
+  },
+  mapModal: (showMap) => ({
+    display: showMap ? 'flex' : 'none',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2000,
+    overflowY: 'auto',
+  }),
+  closeBtn: {
+    position: 'absolute',
+    top: '12px',
+    left: '12px',
+    zIndex: 1001,
+    padding: '8px 16px',
+    backgroundColor: '#e53e3e',
+    color: 'white',
+    border: 'none',
+    borderRadius: '30px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '600',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      backgroundColor: '#c53030',
+    }
+  },
+  mapContainer: {
+    width: '90%',
+    height: '80%',
+    boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
+    borderRadius: '16px',
+    overflow: 'hidden'
+  },
+  mapButton: {
+    marginTop: '1rem',
+    padding: '0.8rem 1.5rem',
+    border: 'none',
+    borderRadius: '30px',
+    background: 'linear-gradient(135deg, #2b5876 0%, #4e4376 100%)',
+    color: 'white',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+    '&:hover': {
+      transform: 'translateY(-2px)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    }
+  },
+  menuIcon: {
+    fontSize: '1.8rem',
+    color: 'white',
+    cursor: 'pointer',
+    marginLeft: '1.5rem',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      color: '#4fd1c5'
+    }
+  },
+  menuItem: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '0.6rem 1.2rem',
+    fontSize: '1rem',
+    color: 'white',
+    backgroundColor: 'transparent',
+    cursor: 'pointer',
+    borderRadius: '30px',
+    transition: 'all 0.3s ease',
+    gap: '0.5rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    '&:hover': {
+      backgroundColor: 'rgba(255,255,255,0.15)',
+    }
+  },
+  activeMenuItem: {
+    backgroundColor: 'white',
+    color: '#2b5876',
+    fontWeight: '600',
+    borderRadius: '30px',
+    padding: '0.6rem 1.4rem',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+  },
+  rightTitle: {
+    color: 'white',
+    fontSize: '1.8rem',
+    fontWeight: '600',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+  }
+};
 
   if (loading) {
     return <div style={styles.loading}>Loading profile data...</div>;
@@ -786,7 +854,7 @@ const ProfilePage = () => {
             <div
               style={{
                 ...styles.menuItem,
-                ...(location.pathname === '/MyCalls' ? styles.activeMenuItem : {})
+                ...(location.pathname === '/CustomerCalls' ? styles.activeMenuItem : {})
               }}
               onClick={() => handleMenuSelect('MyCalls')}
             >
@@ -812,9 +880,20 @@ const ProfilePage = () => {
               }}
               onClick={() => handleMenuSelect('UsersList')}
             >
-              <FaTools /> Users List
+              <FaUsers /> Users List
             </div>
            )}
+           {userData.userType === 'Worker' && (
+              <div
+                style={{
+                  ...styles.menuItem,
+                  ...(location.pathname === '/WorkerRequests' ? styles.activeMenuItem : {})
+                }}
+                onClick={() => handleMenuSelect('MyRequests')}
+              >
+                <FaListAlt /> MyRequests
+              </div>
+            )}
           <div
             style={{
               ...styles.menuItem,
