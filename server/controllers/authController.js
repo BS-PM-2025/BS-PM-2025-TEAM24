@@ -153,9 +153,11 @@ exports.authController = {
                     message: "Invalid Password!"
                 });
             }
-            const token = jwt.sign({ id: user._id }, SECRET, {
-                expiresIn: 14 * 86400 //  14*24 hours
-            });
+            const token = jwt.sign(
+            { id: user._id, isAdmin: user.isAdmin },   // 👈 include the flag
+            SECRET,
+            { expiresIn: 14 * 86400 }
+            );
             let userResponse = {
                 id: user._id,
                 name: user.name,

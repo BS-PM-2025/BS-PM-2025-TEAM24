@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaTools, FaQuestionCircle, FaBars, FaUser, FaSignOutAlt, FaInfoCircle, FaHome, FaCheckCircle } from 'react-icons/fa';
+import { FaTools, FaListAlt, FaBars, FaUser, FaSignOutAlt, FaInfoCircle, FaHome, FaCheckCircle } from 'react-icons/fa';
 import logo from '../assets/images/logo.png';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,19 +7,20 @@ const styles = {
   container: {
     minHeight: '100vh',
     backgroundImage: 'url("https://images.unsplash.com/photo-1570129477492-45c003edd2be")',
-    backgroundSize: 'cover',
+    backgroundSize: 'cover',    // Scale to cover full screen
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
     position: 'fixed',
-    display: 'flex',
     width: '100%',
     height: '100%',
     top: 0,
     left: 0,
+    display: 'flex',
     flexDirection: 'column',
+    overflowY: 'auto',
   },
   header: {
-    backgroundColor: 'rgba(74, 111, 165, 0.9)',
+    background: 'linear-gradient(135deg, #2b5876 0%, #4e4376 100%)',
     padding: '1.4rem 2rem',
     display: 'flex',
     justifyContent: 'space-between',
@@ -28,22 +29,24 @@ const styles = {
     position: 'sticky',
     top: 0,
     zIndex: 1000,
+    boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
   },
   logo: {
     display: 'flex',
     alignItems: 'center',
-    fontSize: '2rem',
-    fontWeight: '900',
-    color: 'white'
+    fontSize: '1.8rem',
+    fontWeight: 'bold',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   logoImage: {
-    width: '50px',
-    height: '50px',
-    marginRight: '14px',
+    width: '40px',
+    height: '40px',
+    marginRight: '10px',
   },
   logoHighlight: {
-    color: '#ffde59',
+    color: '#4fd1c5',
   },
+ 
   content: {
     maxWidth: '850px',
     margin: '2rem auto',
@@ -86,25 +89,30 @@ const styles = {
     overflow: 'hidden',
     zIndex: 2000,
   },
-   menuItem: {
+ menuItem: {
     display: 'flex',
     alignItems: 'center',
-    padding: '0.4rem 0.8rem',
+    padding: '0.6rem 1.2rem',
     fontSize: '1rem',
     color: 'white',
     backgroundColor: 'transparent',
     cursor: 'pointer',
-    borderRadius: '6px',
-    transition: 'background 0.3s ease',
-    gap: '0.5rem'
-  },
+    borderRadius: '30px',
+    transition: 'all 0.3s ease',
+    gap: '0.5rem',
+    margin: '0 0.2rem',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    '&:hover': {
+      backgroundColor: 'rgba(255,255,255,0.15)',
+    },
+},
   activeMenuItem: {
     backgroundColor: 'white',
     color: '#4a6fa5',
     fontWeight: 'bold',
     borderRadius: '999px',
     padding: '0.4rem 1.2rem',
-    boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+    boxShadow: '0 2px 6px rgba(139, 0, 0, 0.1)'
   },
   rightTitle: {
     color: 'white',
@@ -151,8 +159,10 @@ export default function HelpPage() {
       if (userData.userType === 'Worker') navigate('/WorkerMain');
       else if (userData.userType === 'Admin') navigate('/UserManagement');
       else if (userData.userType === 'Customer') navigate('/CustomerMain');
-    } else if (option === 'MyWorks') navigate('/MyWorks');
-    else if (option === 'MyCalls') navigate('/MyCalls');
+    } 
+    else if (option === 'MyWorks') navigate('/MyWorks');
+    else if (option === 'MyRequests') navigate('/WorkerRequests');
+    else if (option === 'MyCalls') navigate('/CustomerCalls');
     else if (option === 'Profile') navigate('/ProfilePage');
     else if (option === 'Help') navigate('/HelpPage');
     else if (option === 'Logout') {
@@ -192,11 +202,22 @@ export default function HelpPage() {
               <FaTools /> MyWorks
             </div>
           )}
+          {userData.userType === 'Worker' && (
+            <div
+              style={{
+                ...styles.menuItem,
+                ...(location.pathname === '/WorkerRequests' ? styles.activeMenuItem : {})
+              }}
+              onClick={() => handleMenuSelect('MyRequests')}
+            >
+              <FaListAlt /> MyRequests
+            </div>
+          )}
           {userData.userType === 'Customer' && (
             <div
               style={{
                 ...styles.menuItem,
-                ...(location.pathname === '/MyCalls' ? styles.activeMenuItem : {})
+                ...(location.pathname === '/CustomerCalls' ? styles.activeMenuItem : {})
               }}
               onClick={() => handleMenuSelect('MyCalls')}
             >
