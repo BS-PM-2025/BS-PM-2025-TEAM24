@@ -425,7 +425,7 @@ export default function WorkerMain() {
   const [averageRating, setAverageRating] = useState(0);
   const [calls, setCalls] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchOption, setSearchOption] = useState('Call Type');
+  const [searchOption, setSearchOption] = useState('Description');
   const storedUser      = JSON.parse(localStorage.getItem('userData')) || {};
   const currentWorkerId = storedUser.id; 
   const [activeTab, setActiveTab] = useState('available'); // 'available', 'accepted', or 'inProgress'

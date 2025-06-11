@@ -81,21 +81,20 @@ exports.eventsController = {
     }
   },
 
-    async getEvents(req, res) {
-      try {
-        const filter = req.isAdmin ? {} : { createdBy: req.userId };
-        const events = await Events.find(filter).sort({ date: -1 });
-        
-        res.json(events);
-        infoLogger.info(`Fetched calls for user ${req.userId}`);
-      } catch (err) {
-        errorLogger.error(`Error fetching Calls: ${err}`);
-        res.status(500).json({
-          message: 'Error fetching Calls',
-          error  : err.message,
-        });
-      }
-    },
+     async getEvents(req, res) {
+        try {
+          const filter = req.isAdmin ? {} : { createdBy: req.userId };
+          const events = await Events.find(filter).sort({ date: -1 });
+          res.json(events);
+          infoLogger.info('Fetched calls for user ${req.userId}');
+        } catch (err) {
+          errorLogger.error(Error ,'fetching Calls: ${err}');
+          res.status(500).json({
+            message: 'Error fetching Calls',
+            error  : err.message,
+          });
+        }
+      },
 
     async getEventsByType(req, res) {
         try {

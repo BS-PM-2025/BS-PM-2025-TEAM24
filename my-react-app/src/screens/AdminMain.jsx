@@ -246,6 +246,34 @@ export default function CustomerMain() {
   const [editingCallId, setEditingCallId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const fetchAllCalls = async () => {
+    const storedUser = JSON.parse(localStorage.getItem('userData'));
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/events/getEvents`, {
+        method: "GET",
+        headers: {
+          "x-access-token": storedUser.accessToken
+        }
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setCalls(result);
+        setAllCalls(result); // Store all calls for filtering
+        calls.map((call) => (setFormData({ callType: call.callType,city:call.city, street:call.street,
+          houseNumber:call.houseNumber,  description: call.description, status:call.status})
+        ));
+      } else {
+        alert("❌ Failed to fetch calls: " + result.message);
+      }
+    } catch (err) {
+      console.error("❌ Error fetching calls:", err);
+      alert("An unexpected error occurred while fetching the calls.");
+    }
+  };
+
   const fetchRatings = async () => {
     const storedUser = JSON.parse(localStorage.getItem("userData"));
     if (!storedUser || !storedUser.accessToken) {
@@ -383,40 +411,12 @@ export default function CustomerMain() {
     }
   };
 
-  const fetchAllCalls = async () => {
-    const storedUser = JSON.parse(localStorage.getItem('userData'));
-
-    try {
-      const response = await fetch(`http://localhost:8000/api/events/getEvents`, {
-        method: "GET",
-        headers: {
-          "x-access-token": storedUser.accessToken
-        }
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setCalls(result);
-        setAllCalls(result); // Store all calls for filtering
-        calls.map((call) => (setFormData({ callType: call.callType,city:call.city, street:call.street,
-          houseNumber:call.houseNumber,  description: call.description, status:call.status})
-        ));
-      } else {
-        alert("❌ Failed to fetch calls: " + result.message);
-      }
-    } catch (err) {
-      console.error("❌ Error fetching calls:", err);
-      alert("An unexpected error occurred while fetching the calls.");
-    }
-  };
-
   const cancelbtn = async () => {
     setShowModal(false);
     calls.map((call) => (setFormData({ callType: call.callType,city:call.city, street:call.street,
       houseNumber:call.houseNumber,  description: call.description, status:call.status})
     ))
-  }
+  };
   
   return (
     <div style={styles.container}>
@@ -648,7 +648,8 @@ export default function CustomerMain() {
                       onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     >
                       <option value="Open">Open</option>
-                      <option value="Closed">Closed</option>
+                      <option value="in progress">in progress</option>
+                      <option value="completed">completed</option>
                     </select>
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>

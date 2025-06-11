@@ -1,5 +1,5 @@
 import { useRef ,useState, useEffect } from 'react';
-import { FaHome, FaTools, FaUser, FaInfoCircle, FaSignOutAlt, FaListAlt, FaTrash } from 'react-icons/fa';
+import { FaHome, FaTools, FaUser, FaInfoCircle, FaSignOutAlt, FaListAlt, FaTrash ,FaSearch } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/images/logo.png';
 import L from 'leaflet';
@@ -229,6 +229,40 @@ const styles = {
     borderRadius: '16px',
     overflow: 'hidden',
   },
+  searchOptionsContainer: {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.5rem',
+  backgroundColor: '#f8fafc',
+  borderRadius: '30px',
+  padding: '0.6rem 1.2rem',
+  border: '1px solid #e2e8f0',
+},
+searchContainer: {
+  display: 'flex',
+  alignItems: 'center',
+  backgroundColor: '#f8fafc',
+  borderRadius: '30px',
+  padding: '0.6rem 1.2rem',
+  border: '1px solid #e2e8f0',
+},
+searchInput: {
+  border: 'none',
+  background: 'transparent',
+  outline: 'none',
+  marginLeft: '0.5rem',
+  width: '200px',
+  fontSize: '1rem',
+  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+},
+searchSelect: {
+  border: 'none',
+  background: 'transparent',
+  outline: 'none',
+  fontSize: '1rem',
+  fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+},
+
 };
 
 export default function WorkerRequests() {
@@ -241,6 +275,8 @@ export default function WorkerRequests() {
   const [mapCoords, setMapCoords] = useState(null); // {lat, lng, address}
   const mapRef = useRef(null);
   const markerRef = useRef(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchOption, setSearchOption] = useState('Description');
   const [workerPosition, setWorkerPosition] = useState(null); // {lat, lng}
   const [initialMapCenter, setInitialMapCenter] = useState(null); // [lat, lng]
   const [initialMapZoom, setInitialMapZoom] = useState(16);
@@ -391,10 +427,24 @@ export default function WorkerRequests() {
   };
 
   // Filter out requests that have been approved (are in progress)
-  const filteredRequests = requests.filter(r => 
-    r.status?.toLowerCase() === 'open' &&          // only open ones
-    !inProgressCalls.some(c => c._id === r._id)
-  );
+  const filteredRequests = requests.filter(r => {
+    if (r.status?.toLowerCase() !== 'open') return false;
+    if (inProgressCalls.some(c => c._id === r._id)) return false;
+
+    if (!searchTerm) return true;
+
+    const term = searchTerm.toLowerCase();
+    switch (searchOption) {
+      case 'Description':
+        return r.description?.toLowerCase().includes(term);
+      case 'Address':
+        return `${r.city} ${r.street} ${r.houseNumber}`.toLowerCase().includes(term);
+      case 'Date':
+        return new Date(r.date || r.createdAt).toLocaleDateString().includes(searchTerm);
+      default:
+        return true;
+    }
+  });
 
   const handleShowOnMap = async (call) => {
     const address = getAddressForMap(call);
@@ -663,6 +713,27 @@ function getAddressForMap(call) {
         <div style={styles.requestsContainer}>
           <div style={styles.requestsHeader}>
             <h2 style={styles.requestsTitle}>Your Pending Requests</h2>
+            <div style={styles.searchOptionsContainer}>
+              <select
+                value={searchOption}
+                onChange={(e) => setSearchOption(e.target.value)}
+                style={styles.searchSelect}
+              >
+                <option value="Description">Description</option>
+                <option value="Address">Address</option>
+                <option value="Date">Date</option>
+              </select>
+              <div style={styles.searchContainer}>
+                <FaSearch />
+                <input
+                  type="text"
+                  placeholder={`Search by ${searchOption}...`}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={styles.searchInput}
+                />
+              </div>
+            </div>
           </div>
 
           {filteredRequests.length === 0 ? (
