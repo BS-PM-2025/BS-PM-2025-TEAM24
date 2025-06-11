@@ -493,6 +493,13 @@ const workerIcon = L.icon({
 });
 const [initialMapCenter, setInitialMapCenter] = useState(null);
 const [initialMapZoom, setInitialMapZoom] = useState(16);
+
+  function openRate(call) {
+  setRateCall(call);
+  setStars(0);
+  setFeedback('');
+  setRateOpen(true);
+}
   const streetOptions = React.useMemo(
     () => Array.from(new Set(calls.map(c => c.street).filter(Boolean))),
     [calls]
@@ -1075,6 +1082,49 @@ useEffect(() => {
   };
 }, []);
 
+const submitRating = async () => {
+  if (stars === 0) { alert('Pick at least one star 🙂'); return; }
+
+  const { accessToken, name } = JSON.parse(localStorage.getItem('userData')) || {};
+  if (!accessToken) { alert('Please log-in again'); return; }
+
+  const workerId =
+       rateCall.assignedWorker          // ← the name you expect
+    || rateCall.workerId                // ← fallback #1
+    || rateCall.approvedWorker          // ← fallback #2
+    || rateCall.approvedWorkers?.[0]?._id; // ← array version
+
+    if (!workerId) {
+      alert('No worker assigned to this call – cannot save rating');
+      return;
+    }
+
+  try {
+    const res = await fetch('http://localhost:8000/api/workRates', {
+      method : 'POST',
+      headers: { 'Content-Type':'application/json', 'x-access-token': accessToken },
+      body   : JSON.stringify({
+        callId       : rateCall._id,
+        workerId,
+        rate         : Number(stars),
+        feedback,
+        customerName : name
+      })
+    });
+
+
+    if (!res.ok) throw new Error((await res.json()).message);
+
+    /* close modal & mark call as rated */
+    setRateOpen(false);
+    setCalls(list => list.map(c =>
+      c._id === rateCall._id ? { ...c, rated: true } : c
+    ));
+    alert('Thanks for the feedback!');
+  } catch (err) {
+    alert(err.message || 'Could not save rating');
+  }
+};
 
 /* helper – returns an array of five JSX stars */
 function renderStars(avg) {
@@ -1561,7 +1611,104 @@ function getEnglishPart(str) {
     Close
   </button>
 </Modal>
+<Modal
+  isOpen={rateOpen}
+  onRequestClose={() => setRateOpen(false)}
+  contentLabel="Rate your worker"
+  style={{
+    content: {
+      maxWidth   : 400,
+      maxHeight   : 400,
+      margin     : 'auto',
+      borderRadius: 8,
+      padding    : 24
+    }
+  }}
+>
+  <h2 style={{ textAlign:'center', color:'#4a6fa5' }}>
+    How was the work?
+  </h2><br />
 
+  {/* ── star picker ───────────────────────────────── */}
+  <div
+    style={{
+      display      : 'flex',
+      justifyContent: 'center',
+      gap          : 8,
+      margin       : '18px 0'
+    }}
+  >
+    {[1,2,3,4,5].map(n =>
+      n <= stars ? (
+        <FaStar
+          key={n}
+          size={28}
+          style={{ cursor:'pointer', color:'#ffc107' }}
+          onClick={() => setStars(n)}
+        />
+      ) : (
+        <FaRegStar
+          key={n}
+          size={28}
+          style={{ cursor:'pointer' }}
+          onClick={() => setStars(n)}
+        />
+      )
+    )}
+  </div><br /><br />
+
+  {/* ── free-text feedback ───────────────────────── */}
+  <textarea
+    placeholder="Anything you'd like to add…"
+    rows={6}
+    value={feedback}
+    onChange={e => setFeedback(e.target.value)}
+    style={{
+      width       : '100%',
+      padding     : 10,
+      border      : '1px solid #ccc',
+      borderRadius: 6
+    }}
+  />
+
+  {/* ── buttons ──────────────────────────────────── */}
+  <div
+    style={{
+      display    : 'flex',
+      justifyContent:'flex-end',
+      gap        : 10,
+      marginTop  : 18
+    }}
+  >
+    <button
+      onClick={() => setRateOpen(false)}
+      style={{
+        background  : '#6c757d',
+        color       : '#fff',
+        border      : 'none',
+        borderRadius: 6,
+        padding     : '8px 20px',
+        cursor      : 'pointer'
+      }}
+    >
+      Cancel
+    </button>
+    <button
+      onClick={submitRating}
+      style={{
+        background  : '#4a6fa5',
+        color       : '#fff',
+        border      : 'none',
+        borderRadius: 6,
+        padding     : '8px 26px',
+        cursor      : 'pointer',
+        fontWeight  : 600
+      }}
+    >
+      Send
+    </button>
+  </div>
+</Modal>
 {editOpen && (
   <div style={{
     position: 'fixed',
@@ -1855,6 +2002,23 @@ function getEnglishPart(str) {
                 </button>
               </div>
             </div>
+
+            {call.status.toLowerCase() === 'completed' && !call.rated && (
+              <button
+                style={{
+                  ...styles.viewBtn,
+                  marginTop: '10px',
+                  width: '60%',
+                  background: '#FFA500',
+                  fontSize: '0.85rem',
+                  padding: '0.5rem 1rem',
+                  alignSelf: 'center'
+                }}
+                onClick={() => openRate(call)}
+              >
+                <strong>Worker Rate/Feedback</strong>
+              </button>
+            )}
           </div>
         </div>
       ))}
