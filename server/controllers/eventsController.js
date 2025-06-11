@@ -1,9 +1,10 @@
 const Events = require('../models/events'); // Assuming this is the correct path
 const { infoLogger, errorLogger } = require("../logs/logs");
 const User = require('../models/users'); // Assuming you're storing user data here
-
+const mongoose = require('mongoose');
+const sendMail = require('../utils/mailer');
 exports.eventsController = {
-     async addEvent(req, res) {
+    async addEvent(req, res) {
         try {
           const user = await User.findById(req.userId);
           if (!user) {
@@ -47,24 +48,61 @@ exports.eventsController = {
           return res.status(500).json({ message: "Internal server error", error: err.message });
         }
     },
+     async unapply(req, res) {
+    try {
+      const eventId = req.params.id;
+
+      // Build a filter that works whether 'id' is a real ObjectId or your UUID callID
+      const filter = mongoose.Types.ObjectId.isValid(eventId)
+        ? { _id: eventId }
+        : { callID: eventId };
+
+      // Pull this user out of both arrays
+      const updated = await Events.findOneAndUpdate(
+        filter,
+        {
+          $pull: {
+            applicants: req.userId,
+            approvedWorkers: req.userId,
+          }
+        },
+        { new: true }
+      );
+
+      if (!updated) {
+        // no event found
+        return res.status(404).json({ message: 'Call not found' });
+      }
+
+      return res.json({ message: 'Unapplied successfully' });
+    } catch (err) {
+      errorLogger.error(`Error unapplying: ${err}`);
+      return res.status(500).json({ message: 'Server error', error: err.message });
+    }
+  },
 
     async getEvents(req, res) {
-        try {
-            const events = await Events.find({}).sort({ date: -1 }); 
-            res.json(events);   
-            infoLogger.info("Fetched all Calls");
-        } catch (err) {
-            errorLogger.error(`Error fetching Calls: ${err}`);
-            res.status(500).json({ "message": "Error fetching Calls", error: err });
-        }
-    }
-    ,    
+      try {
+        const filter = req.isAdmin ? {} : { createdBy: req.userId };
+        const events = await Events.find(filter).sort({ date: -1 });
+        
+        res.json(events);
+        infoLogger.info(`Fetched calls for user ${req.userId}`);
+      } catch (err) {
+        errorLogger.error(`Error fetching Calls: ${err}`);
+        res.status(500).json({
+          message: 'Error fetching Calls',
+          error  : err.message,
+        });
+      }
+    },
 
     async getEventsByType(req, res) {
         try {
             
-            const events = await Events.find({ callType: req.params.callType });
-    
+            const events = await Events.find({
+              callType: req.params.callType,
+            });
             if (events.length > 0) {
                 res.json(events);
             } else {
@@ -106,6 +144,8 @@ exports.eventsController = {
             res.status(500).json({ message: "Error updating Call", error: err });
         }
     },
+
+    // controllers/eventsController.js
     async cusupdateEvent(req, res) {
       try {
         /* ── 1. build a whitelist of mutable fields ─────────────── */
@@ -132,21 +172,48 @@ exports.eventsController = {
         return res.status(500).json({ message: err.message });
       }
     },
-    async deleteEvent(req, res) {
-        try {
-            const result = await Events.deleteOne({ callID: req.params.id });
-            if (result.deletedCount > 0) {
-                infoLogger.info(`Event deleted successfully: ${req.params.id}`);
-                res.json({ "message": "Event deleted successfully" });
-            } else {
-                errorLogger.error(`Event not found: ${req.params.id}`);
-                res.status(404).json({ "message": "Event not found" });
-            }
-        } catch (err) {
-            errorLogger.error(`Error deleting event: ${err}`);
-            res.status(500).json({ "message": "Error deleting event", error: err });
-        }
-    },
+
+     async deleteEvent(req, res) {
+     const param = req.params.id;
+
+     try {
+       let deleted;
+
+      // 1) If param is a valid ObjectId, delete by _id
+       if (mongoose.Types.ObjectId.isValid(param)) {
+         deleted = await Events.findByIdAndDelete(param);
+       } else {
+        // 2) Otherwise try deleting by your custom callID field
+         deleted = await Events.findOneAndDelete({ callID: param });
+       }
+
+      // 3) If nothing was deleted, return 404
+       if (!deleted) {
+         errorLogger.error(`Event not found: ${param}`);
+         return res.status(404).json({ message: "Event not found" });
+       }
+
+      // 4) Optionally remove that callID from the user's userCalls array
+      //    (requires verifyToken to have set req.userId)
+       if (req.userId) {
+        await User.updateOne(
+          { _id: req.userId },
+          { $pull: { userCalls: deleted.callID || deleted._id.toString() } }
+         );
+       }
+
+      infoLogger.info(`Event deleted successfully: ${param}`);
+      return res.json({ message: "Event deleted successfully" });
+
+     } catch (err) {
+      // 5) Any other error => 500 with the error message
+      errorLogger.error(`Error deleting event: ${err.stack}`);
+      return res.status(500).json({
+        message: "Error deleting event",
+        error: err.message
+      });
+    }
+   },
     async getLocationDetails(req, res) {
         try {
             const { lat, lng } = req.body;
@@ -189,112 +256,66 @@ exports.eventsController = {
             return res.status(500).json({ message: "Failed to get location details", error: err.message });
         }
     },
-    async unapply(req, res) {
+     // returns [{ workerId, name, email, phone, ... }, …]
+async getApplicants(req, res) {
+  const event = await Events.findById(req.params.id)
+    .populate('applicants', 'name email phone workType');
+  const approved = await User.find(
+    { _id: { $in: event.approvedWorkers } },
+    'name email phone workType'
+  );
+  return res.json({
+    applicants: event.applicants,
+    approvedWorkers: approved
+  });
+},
+  async applyToCall(req, res) {
+  try {
+    const { id }   = req.params;       // call _id from the URL
+    const workerId = req.userId;       // comes from verifyToken
+
+    /* ① add this worker to applicants (skip duplicates automatically) */
+    const event = await Events.findByIdAndUpdate(
+      id,
+      { $addToSet: { applicants: workerId } },
+      { new: true }
+    )
+      .populate('createdBy',  'name email')     // customer who opened the call
+      .populate('applicants', 'name email');    // optional: who else applied
+
+    if (!event) return res.status(404).json({ message: 'Call not found' });
+
+    /* ② fetch the worker’s public details for the mail body */
+    const worker = await User.findById(workerId, 'name email workType');
+
+    /* ③ fire an e-mail — don’t crash if it fails */
     try {
-      const eventId = req.params.id;
-
-      // Build a filter that works whether 'id' is a real ObjectId or your UUID callID
-      const filter = mongoose.Types.ObjectId.isValid(eventId)
-        ? { _id: eventId }
-        : { callID: eventId };
-
-      // Pull this user out of both arrays
-      const updated = await Events.findOneAndUpdate(
-        filter,
-        {
-          $pull: {
-            applicants: req.userId,
-            approvedWorkers: req.userId,
-          }
-        },
-        { new: true }
+      await sendMail(
+        event.createdBy.email,
+        `New applicant for your ${event.callType} call`,
+        `<p>Hi ${event.createdBy.name},</p>
+         <p><strong>${worker.name}</strong> (${worker.workType})
+            just requested to handle your <em>${event.callType}</em> job.</p>
+         <p>Open <strong>My Calls → View Applicants</strong> inside HouseFix
+            to review all requests.</p>
+         <hr style="border:none;border-top:1px solid #eee"/>
+         <p style="font-size:0.85em;color:#777">This is an automated message –
+            please do not reply.</p>`
       );
-
-      if (!updated) {
-        // no event found
-        return res.status(404).json({ message: 'Call not found' });
-      }
-
-      return res.json({ message: 'Unapplied successfully' });
-    } catch (err) {
-      errorLogger.error(`Error unapplying: ${err}`);
-      return res.status(500).json({ message: 'Server error', error: err.message });
+    } catch (mailErr) {
+      console.error('❌  Could not send notification mail:', mailErr);
+      // we still continue – the request itself succeeded
     }
-  },
-  async getMyApplications(req, res) {
-    try {
-        const apps = await Events.find({
-        applicants: req.userId,
-        status    : 'Open'                        // 👈 filter!
-        }).sort({ date: -1 });
-        return res.json(apps);
-    } catch (err) {
-        return res.status(500).json({ message: err.message });
-    }
-    },
-    async getMyApprovedCalls(req, res) {
-    try {
-        // find all Events where this user is in approvedWorkers
-        const calls = await Events.find({ approvedWorkers: req.userId })
-                                .sort({ date: -1 })
-                                .lean();
-        return res.json(calls);
-    } catch (err) {
-        errorLogger.error(`Error fetching approved calls: ${err}`);
-        return res.status(500).json({ message: err.message });
-    }
-    },
-      async completeCall(req, res) {
-    try {
-      const call = await Events.findByIdAndUpdate(
-        req.params.id,          // :id parameter
-        { status: 'completed' },
-        { new: true }           // return the updated doc
-      );
 
-      if (!call) {
-        return res.status(404).json({ message: 'Call not found' });
-      }
-         try {
-     const customer = await User.findById(call.createdBy)
-                                .select('name email');
-
-     const worker   = await User.findById(req.userId)
-                                .select('name');
-
-     if (customer?.email) {
-       await sendMail(
-         customer.email,
-         '🎉 Your job is completed!',
-         `
-Hi ${customer.name},
-
-Great news — ${worker?.name || 'Your worker'} marked the "${call.callType}"
-job (#${call.callID}) as completed.
-
-Please check the work and feel free to rate the worker in HouseFix.
-
-Thank you for using HouseFix!
-
-— HouseFix Team
-         `.trim()
-       );
-     }
-   } catch (mailErr) {
-     errorLogger.error('Could not send “job done” e-mail: ' + mailErr);
-     /* the API call itself should still succeed even if mail fails */
-   }
- 
+    return res.json({ message: 'Request sent and customer notified' });
+  } catch (err) {
+    errorLogger.error(`Error applying to call: ${err}`);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+},
 
 
-      res.json(call);           // send updated call back
-    } catch (err) {
-      errorLogger.error(`completeCall error: ${err}`);
-      res.status(500).json({ message: 'Server error' });
-    }
-  },
-  
-   async approveWorker(req, res) {
+ async approveWorker(req, res) {
   try {
     const { id, workerId } = req.params;
 
@@ -355,51 +376,89 @@ Thank you for using HouseFix!
     return res.status(500).json({ message: 'Server error', error: err.message });
   }
 },
-async applyToCall(req, res) {
+  async getMyEvents(req, res) {
   try {
-    const { id }   = req.params;       // call _id from the URL
-    const workerId = req.userId;       // comes from verifyToken
-
-    /* ① add this worker to applicants (skip duplicates automatically) */
-    const event = await Events.findByIdAndUpdate(
-      id,
-      { $addToSet: { applicants: workerId } },
-      { new: true }
-    )
-      .populate('createdBy',  'name email')     // customer who opened the call
-      .populate('applicants', 'name email');    // optional: who else applied
-
-    if (!event) return res.status(404).json({ message: 'Call not found' });
-
-    /* ② fetch the worker’s public details for the mail body */
-    const worker = await User.findById(workerId, 'name email workType');
-
-    /* ③ fire an e-mail — don’t crash if it fails */
-    try {
-      await sendMail(
-        event.createdBy.email,
-        `New applicant for your ${event.callType} call`,
-        `<p>Hi ${event.createdBy.name},</p>
-         <p><strong>${worker.name}</strong> (${worker.workType})
-            just requested to handle your <em>${event.callType}</em> job.</p>
-         <p>Open <strong>My Calls → View Applicants</strong> inside HouseFix
-            to review all requests.</p>
-         <hr style="border:none;border-top:1px solid #eee"/>
-         <p style="font-size:0.85em;color:#777">This is an automated message –
-            please do not reply.</p>`
-      );
-    } catch (mailErr) {
-      console.error('❌  Could not send notification mail:', mailErr);
-      // we still continue – the request itself succeeded
-    }
-
-    return res.json({ message: 'Request sent and customer notified' });
+    const mine = await Events.find({ createdBy: req.userId }).sort({ date: -1 });
+    return res.json(mine);
   } catch (err) {
-    errorLogger.error(`Error applying to call: ${err}`);
-    return res.status(500).json({ message: 'Server error', error: err.message });
+    return res.status(500).json({ message: "Error fetching your calls", error: err.message });
   }
 },
+
+async getMyApplications(req, res) {
+  try {
+    const apps = await Events.find({
+      applicants: req.userId,
+      status    : 'Open'                        // 👈 filter!
+    }).sort({ date: -1 });
+    return res.json(apps);
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+},
+async getMyApprovedCalls(req, res) {
+  try {
+    // find all Events where this user is in approvedWorkers
+    const calls = await Events.find({ approvedWorkers: req.userId })
+                              .sort({ date: -1 })
+                              .lean();
+    return res.json(calls);
+  } catch (err) {
+    errorLogger.error(`Error fetching approved calls: ${err}`);
+    return res.status(500).json({ message: err.message });
+  }
+},
+  async completeCall(req, res) {
+    try {
+      const call = await Events.findByIdAndUpdate(
+        req.params.id,          // :id parameter
+        { status: 'completed' },
+        { new: true }           // return the updated doc
+      );
+
+      if (!call) {
+        return res.status(404).json({ message: 'Call not found' });
+      }
+         try {
+     const customer = await User.findById(call.createdBy)
+                                .select('name email');
+
+     const worker   = await User.findById(req.userId)
+                                .select('name');
+
+     if (customer?.email) {
+       await sendMail(
+         customer.email,
+         '🎉 Your job is completed!',
+         `
+Hi ${customer.name},
+
+Great news — ${worker?.name || 'Your worker'} marked the "${call.callType}"
+job (#${call.callID}) as completed.
+
+Please check the work and feel free to rate the worker in HouseFix.
+
+Thank you for using HouseFix!
+
+— HouseFix Team
+         `.trim()
+       );
+     }
+   } catch (mailErr) {
+     errorLogger.error('Could not send “job done” e-mail: ' + mailErr);
+     /* the API call itself should still succeed even if mail fails */
+   }
+ 
+
+
+      res.json(call);           // send updated call back
+    } catch (err) {
+      errorLogger.error(`completeCall error: ${err}`);
+      res.status(500).json({ message: 'Server error' });
+    }
+  },
+  async markRated (req, res) {
+    await Events.findByIdAndUpdate(req.params.id, { rated: true });
+    res.json({ ok: true });
+  }
 };
-
-
-
