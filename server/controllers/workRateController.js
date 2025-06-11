@@ -3,6 +3,45 @@ const { Types } = require('mongoose');
 const Events    = require('../models/events');
 const mongoose  = require('mongoose');
 
+/* POST  /api/workRates          → create a new rating */
+exports.addRating = async (req, res) => {
+  console.log('⇢ POST /workRates', req.body);
+
+  try {
+    const {
+      workerId,
+      callId,            // ① coming from the client – Event._id or callID
+      rate,
+      feedback  = '',
+      customerName = ''
+    } = req.body;
+
+    if (!workerId || !rate) {
+      return res
+        .status(400)
+        .json({ message: 'workerId and rate are required' });
+    }
+    const rating = await WorkRate.create({
+      workerId,
+      customerId   : req.userId,    // set by verifyToken middleware
+      customerName,
+      rate : Number(rate),
+      feedback
+    });
+    if (callId) {
+      /* works for both Mongo ObjectId _id and your custom callID field */
+      const filter = mongoose.Types.ObjectId.isValid(callId)
+        ? { _id: callId }
+        : { callID: callId };
+
+      await Events.findOneAndUpdate(filter, { rated: true });
+    }
+    res.status(201).json({ message: 'Saved', rating });
+  } catch (err) {
+    console.error('❌ addRating error:', err);
+    res.status(500).json({ message: err.message });
+  }
+};
 
 /* GET /api/workRates/:workerId  → all ratings for a worker */
 exports.getWorkerRatings = async (req, res) => {
