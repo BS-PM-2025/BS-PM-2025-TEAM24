@@ -355,6 +355,50 @@ Thank you for using HouseFix!
     return res.status(500).json({ message: 'Server error', error: err.message });
   }
 },
+async applyToCall(req, res) {
+  try {
+    const { id }   = req.params;       // call _id from the URL
+    const workerId = req.userId;       // comes from verifyToken
+
+    /* ① add this worker to applicants (skip duplicates automatically) */
+    const event = await Events.findByIdAndUpdate(
+      id,
+      { $addToSet: { applicants: workerId } },
+      { new: true }
+    )
+      .populate('createdBy',  'name email')     // customer who opened the call
+      .populate('applicants', 'name email');    // optional: who else applied
+
+    if (!event) return res.status(404).json({ message: 'Call not found' });
+
+    /* ② fetch the worker’s public details for the mail body */
+    const worker = await User.findById(workerId, 'name email workType');
+
+    /* ③ fire an e-mail — don’t crash if it fails */
+    try {
+      await sendMail(
+        event.createdBy.email,
+        `New applicant for your ${event.callType} call`,
+        `<p>Hi ${event.createdBy.name},</p>
+         <p><strong>${worker.name}</strong> (${worker.workType})
+            just requested to handle your <em>${event.callType}</em> job.</p>
+         <p>Open <strong>My Calls → View Applicants</strong> inside HouseFix
+            to review all requests.</p>
+         <hr style="border:none;border-top:1px solid #eee"/>
+         <p style="font-size:0.85em;color:#777">This is an automated message –
+            please do not reply.</p>`
+      );
+    } catch (mailErr) {
+      console.error('❌  Could not send notification mail:', mailErr);
+      // we still continue – the request itself succeeded
+    }
+
+    return res.json({ message: 'Request sent and customer notified' });
+  } catch (err) {
+    errorLogger.error(`Error applying to call: ${err}`);
+    return res.status(500).json({ message: 'Server error', error: err.message });
+  }
+},
 };
 
 

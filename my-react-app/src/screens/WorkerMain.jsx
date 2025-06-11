@@ -538,7 +538,32 @@ const fetchInProgressCalls = async () => {
   }
 };
 
- 
+  const handleAccept = async (call, e) => {
+  e.stopPropagation();
+
+  // 1- tell the server we applied
+  await fetch(
+    `http://localhost:8000/api/events/applicants/${call._id}`,
+    {
+      method : 'POST',
+      headers: { 'x-access-token': storedUser?.accessToken }
+    }
+  );
+
+  // 2- locally add *this* worker to applicants so the UI toggles
+  setCalls(list =>
+    list.map(c =>
+      c.callID === call.callID
+        ? { ...c,
+            applicants: [...(c.applicants || []), currentWorkerId] }
+        : c
+    )
+  );
+  const stored = JSON.parse(localStorage.getItem('acceptedCallsFull')) || [];
+  localStorage.setItem('acceptedCallsFull', JSON.stringify([...stored, call]));
+
+};
+
   const handleCompleteCall = async (callId) => {
     const storedUser = JSON.parse(localStorage.getItem('userData'));
     if (!storedUser?.accessToken) return;
@@ -1117,7 +1142,22 @@ function getAddressForMap(call) {
                     <span style={styles.detailLabel}>Date:</span>
                     <span>{new Date(call.date).toLocaleDateString()}</span>
                   </div>
-                 
+                  {(() => {
+                    const alreadyApplied =
+                      Array.isArray(call.applicants) &&
+                      call.applicants.includes(currentWorkerId);
+                    return (
+                      <button
+                        style={alreadyApplied
+                                  ? styles.acceptedButton
+                                  : styles.acceptButton}
+                        onClick={e => handleAccept(call, e)}
+                        disabled={alreadyApplied}
+                      >
+                        <strong>{alreadyApplied ? 'Requested' : 'Accept Call'}</strong>
+                      </button>
+                    );
+                  })()}
                 </div>
               ))
             )
