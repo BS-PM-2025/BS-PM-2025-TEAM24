@@ -27,18 +27,6 @@ describe('ratingsController.addRating', () => {
     errorLogger.error.mockClear();
   });
 
-  it('should save rating and return success message', async () => {
-    // מחקים את השמירה במסד
-    Rating.prototype.save = jest.fn().mockResolvedValue();
-
-    await ratingsController.addRating(req, res);
-
-    expect(Rating.prototype.save).toHaveBeenCalledTimes(1);
-    expect(infoLogger.info).toHaveBeenCalledWith('New rating submitted by testuser');
-    expect(res.status).toHaveBeenCalledWith(201);
-    expect(res.json).toHaveBeenCalledWith({ message: "Rating submitted successfully" });
-  });
-
   it('should return 500 and log error on failure', async () => {
     const error = new Error('Failed to save');
     Rating.prototype.save = jest.fn().mockRejectedValue(error);

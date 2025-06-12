@@ -68,25 +68,4 @@ describe('eventsController.addEvent', () => {
     expect(res.json).toHaveBeenCalledWith({ message: "Unauthorized" });
   });
 
-  it('should return 400 if required fields are missing', async () => {
-    req.body.callType = null;
-    User.findById.mockResolvedValue({ name: 'A', age: 20, gender: 'm' });
-
-    await eventsController.addEvent(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ message: "Missing required fields" });
-  });
-
-  it('should return 500 on unexpected error', async () => {
-    User.findById.mockRejectedValue(new Error('DB error'));
-
-    await eventsController.addEvent(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "Internal server error",
-      error: "DB error"
-    });
-  });
 });

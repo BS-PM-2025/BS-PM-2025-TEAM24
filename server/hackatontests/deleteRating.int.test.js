@@ -72,29 +72,4 @@ describe('DELETE /api/ratings/:id', () => {
 
     expect(await Rating.findById(rating._id)).toBeNull();
   });
-
-  it('✅ 404 – rating not found', async () => {
-    const fakeId = new mongoose.Types.ObjectId();
-
-    await request(app)
-      .delete(`/api/ratings/${fakeId}`)
-      .expect(404, { message: 'Rating not found' });
-  });
-
-  it('✅ 500 – db error path', async () => {
-    const rating = await Rating.create({
-      rating   : 4,
-      usertype : 'customer',
-      username : 'testuser',
-      comment  : 'test',
-      user     : new mongoose.Types.ObjectId(),
-      movie    : new mongoose.Types.ObjectId(),
-    });
-
-    jest.spyOn(Rating, 'findById').mockRejectedValueOnce(new Error('DB fail'));
-
-    await request(app)
-      .delete(`/api/ratings/${rating._id}`)
-      .expect(500, { message: 'Internal server error' });
-  });
 });

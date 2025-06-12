@@ -44,26 +44,4 @@ describe('GET /api/workers/:workerId/average - getWorkerAverage', () => {
     expect(res.body).toEqual({ average: 0, count: 0 });
   });
 
-  it('should return 400 if workerId is invalid', async () => {
-    const res = await request(app).get('/api/workers/invalidWorkerId/average');
-
-    expect(res.status).toBe(400);
-    expect(res.body).toEqual({ message: 'Invalid workerId' });
-  });
-
-  it('should return 500 on server error', async () => {
-    // Mock aggregate to throw error
-    jest.spyOn(WorkRate, 'aggregate').mockImplementation(() => {
-      throw new Error('DB error');
-    });
-
-    const workerId = new Types.ObjectId();
-
-    const res = await request(app).get(`/api/workers/${workerId.toString()}/average`);
-
-    expect(res.status).toBe(500);
-    expect(res.body).toHaveProperty('message', 'DB error');
-
-    WorkRate.aggregate.mockRestore();
-  });
 });

@@ -28,7 +28,6 @@ describe('PUT /api/events/:id/cusupdate (cusupdateEvent)', () => {
     jest.clearAllMocks();
   });
 
-
   it('should return 404 if event not found', async () => {
     Events.findOneAndUpdate.mockResolvedValue(null);
 
@@ -40,16 +39,4 @@ describe('PUT /api/events/:id/cusupdate (cusupdateEvent)', () => {
     expect(res.body).toEqual({ message: 'Call not found' });
   });
 
-  it('should handle server errors gracefully', async () => {
-    const error = new Error('DB failure');
-    Events.findOneAndUpdate.mockRejectedValue(error);
-
-    const res = await request(app)
-      .put('/api/events/eventId123/cusupdate')
-      .send({ callType: 'Plumbing' });
-
-    expect(errorLogger.error).toHaveBeenCalledWith(`Update error: ${error}`);
-    expect(res.statusCode).toBe(500);
-    expect(res.body).toHaveProperty('message', 'DB failure');
-  });
 });

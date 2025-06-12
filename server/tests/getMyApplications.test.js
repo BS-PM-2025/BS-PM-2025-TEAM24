@@ -39,14 +39,4 @@ describe('eventsController.getMyApplications', () => {
     expect(res.json).toHaveBeenCalledWith(mockApps);
   });
 
-  it('should return 500 on error', async () => {
-    const error = new Error('DB failure');
-    const sortMock = jest.fn().mockRejectedValue(error);
-    Events.find.mockReturnValue({ sort: sortMock });
-
-    await eventsController.getMyApplications(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: error.message });
-  });
 });

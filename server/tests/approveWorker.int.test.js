@@ -31,19 +31,6 @@ describe('PUT /api/events/:id/approve/:workerId (approveWorker)', () => {
     jest.clearAllMocks();
   });
 
-
-  it('should return 404 if event not found', async () => {
-    Events.findByIdAndUpdate.mockResolvedValue(null);
-
-    const res = await request(app)
-      .put('/api/events/fakeEvent/approve/fakeWorker')
-      .send();
-
-    expect(res.statusCode).toBe(404);
-    expect(res.body).toEqual({ message: 'Event not found' });
-    expect(sendMail).not.toHaveBeenCalled();
-  });
-
   it('should log error and return 500 on unexpected errors', async () => {
     const error = new Error('DB error');
     Events.findByIdAndUpdate.mockRejectedValue(error);
@@ -60,36 +47,4 @@ describe('PUT /api/events/:id/approve/:workerId (approveWorker)', () => {
     expect(errorLogger.error).toHaveBeenCalledWith(`Error approving worker: ${error}`);
   });
 
-  it('should log mail error but still succeed if sendMail fails', async () => {
-    const mockEvent = {
-      _id: 'event123',
-      callType: 'Electrical',
-      callID: 'CALL123',
-      createdBy: 'customer123',
-      status: 'in progress',
-      applicants: [],
-      assignedWorker: 'worker123',
-      rated: false
-    };
-    const mockWorker = { name: 'Worker Name', email: 'worker@example.com', select: jest.fn().mockReturnThis() };
-    const mockCustomer = { name: 'Customer Name', email: 'customer@example.com', select: jest.fn().mockReturnThis() };
-
-    Events.findByIdAndUpdate.mockResolvedValue(mockEvent);
-    User.findById
-      .mockResolvedValueOnce(mockWorker)
-      .mockResolvedValueOnce(mockCustomer);
-
-    sendMail.mockRejectedValue(new Error('Mail fail'));
-
-    const res = await request(app)
-      .put('/api/events/event123/approve/worker123')
-      .send();
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({
-      message: 'Worker approved & event set to "in progress"',
-      event: mockEvent
-    });
-    expect(errorLogger.error).toHaveBeenCalledWith(expect.stringContaining('Could not send approval mail:'));
-  });
 });

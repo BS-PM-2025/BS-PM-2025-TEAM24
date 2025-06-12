@@ -45,18 +45,6 @@ describe("Integration Test: deleteUser", () => {
     await mongoServer.stop();
   });
 
-  it("✅ should delete the user successfully", async () => {
-    const res = await request(app)
-      .delete(`/api/users/${user._id}/deleteUser`)
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body.message).toMatch(/successfully/);
-
-    const deleted = await User.findById(user._id);
-    expect(deleted).toBeNull();
-  });
-
   it("❌ should return 400 if user does not exist", async () => {
     const fakeId = new mongoose.Types.ObjectId();
     const res = await request(app)

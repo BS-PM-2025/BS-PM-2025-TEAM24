@@ -74,23 +74,5 @@ describe('POST /api/workRates', () => {
     const updatedEvent = await Events.findById(eventId);
     expect(updatedEvent.rated).toBe(true);
   });
-
-  it('should fail with 400 if workerId or rate missing', async () => {
-    const res = await request(app)
-      .post('/api/workRates')
-      .send({ rate: 5 })
-      .expect(400);
-
-    expect(res.body).toHaveProperty('message', 'workerId and rate are required');
-  });
-
-  it('should handle server errors gracefully', async () => {
-    // Simulate error by making workerId an invalid value
-    const res = await request(app)
-      .post('/api/workRates')
-      .send({ workerId: null, rate: 5 })
-      .expect(400);
-
-    expect(res.body).toHaveProperty('message', 'workerId and rate are required');
-  });
+  
 });

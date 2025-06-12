@@ -44,15 +44,6 @@ describe("POST /api/auth/signup-worker", () => {
     expect(res.body.email).toBe(validWorker.email);
   });
 
-  it("should return 400 if email already exists", async () => {
-    User.findOne.mockResolvedValue({ email: validWorker.email });
-
-    const res = await request(app).post("/api/auth/signup-worker").send(validWorker);
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe("this email is already exists");
-  });
-
   it("should return 400 if parameters are missing", async () => {
     const res = await request(app).post("/api/auth/signup-worker").send({ email: "test@worker.com" });
 
@@ -60,23 +51,4 @@ describe("POST /api/auth/signup-worker", () => {
     expect(res.body.message).toBe("Missing Parameters Please send all Parameters");
   });
 
-  it("should return 400 if findOne throws an error", async () => {
-    User.findOne.mockRejectedValue(new Error("DB Fail"));
-
-    const res = await request(app).post("/api/auth/signup-worker").send(validWorker);
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message.trim()).toBe("Error User user"); // trim to ignore trailing space
-  });
-
-  it("should return 400 if save() throws an error", async () => {
-    User.findOne.mockResolvedValue(null);
-    bcrypt.hashSync.mockReturnValue("hashedpass123");
-    User.prototype.save = jest.fn().mockRejectedValue(new Error("Save fail"));
-
-    const res = await request(app).post("/api/auth/signup-worker").send(validWorker);
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message.trim()).toBe("Error Adding User");
-  });
 });

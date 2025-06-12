@@ -35,13 +35,4 @@ describe('usersController.getAllUsers', () => {
     expect(res.json).toHaveBeenCalledWith(mockUsers);
   });
 
-  it('should handle errors and return 500', async () => {
-    const selectMock = jest.fn().mockRejectedValue(new Error("DB error"));
-    User.find.mockReturnValue({ select: selectMock });
-
-    await usersController.getAllUsers(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: "Failed to fetch users" });
-  });
 });

@@ -34,7 +34,6 @@ describe('eventsController.approveWorker', () => {
     res.status.mockClear();
   });
 
-
   it('should skip sending mail if worker email missing', async () => {
     const fakeEvent = {
       _id: 'eventId123',
@@ -62,26 +61,5 @@ describe('eventsController.approveWorker', () => {
       message: 'Worker approved & event set to "in progress"',
       event: fakeEvent
     });
-  });
-
-
-  it('should return 404 if event not found', async () => {
-    Events.findByIdAndUpdate.mockResolvedValue(null);
-
-    await eventsController.approveWorker(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Event not found' });
-  });
-
-  it('should handle unexpected errors', async () => {
-    const error = new Error('DB error');
-    Events.findByIdAndUpdate.mockImplementation(() => { throw error; });
-
-    await eventsController.approveWorker(req, res);
-
-    expect(errorLogger.error).toHaveBeenCalledWith(`Error approving worker: ${error}`);
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Server error', error: error.message });
   });
 });

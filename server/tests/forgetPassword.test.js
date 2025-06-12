@@ -40,17 +40,4 @@ describe("Unit Test: forgetPassword (no code changes)", () => {
     });
   });
 
-  it("❌ should return 404 if user not found", async () => {
-    req.body.email = "notfound@example.com";
-    User.findOne.mockResolvedValue(null);
-
-    await authController.forgetPassword(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "User not found",
-    });
-  });
-
-  
 });

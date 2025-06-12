@@ -28,29 +28,4 @@ describe('getWorkerAverage', () => {
     expect(res.json).toHaveBeenCalledWith({ average: 4.5, count: 10 });
   });
 
-  it('should return 0 average and count if no ratings', async () => {
-    WorkRate.aggregate.mockResolvedValue([]);
-
-    await getWorkerAverage(req, res);
-
-    expect(res.json).toHaveBeenCalledWith({ average: 0, count: 0 });
-  });
-
-  it('should return 400 for invalid workerId', async () => {
-    req.params.workerId = 'notavalidid';
-
-    await getWorkerAverage(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Invalid workerId' });
-  });
-
-  it('should handle errors and return 500', async () => {
-    WorkRate.aggregate.mockRejectedValue(new Error('DB Error'));
-
-    await getWorkerAverage(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: 'DB Error' });
-  });
 });

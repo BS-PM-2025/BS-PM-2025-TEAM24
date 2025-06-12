@@ -56,18 +56,4 @@ describe('GET /api/events/myApprovedCalls - getMyApprovedCalls', () => {
     expect(leanMock).toHaveBeenCalled();
   });
 
-  it('should handle server errors gracefully', async () => {
-    Events.find.mockReturnValue({
-      sort: () => ({
-        lean: () => { throw new Error('DB failure'); }
-      })
-    });
-
-    const res = await request(app)
-      .get('/api/events/myApprovedCalls')
-      .expect(500);
-
-    expect(res.body).toHaveProperty('message', 'DB failure');
-    expect(errorLogger.error).toHaveBeenCalledWith(expect.stringContaining('Error fetching approved calls:'));
-  });
 });

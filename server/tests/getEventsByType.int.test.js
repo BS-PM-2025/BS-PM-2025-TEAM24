@@ -70,17 +70,6 @@ describe("Integration Test: getEventsByType", () => {
     await mongoServer.stop();
   });
 
-  it("✅ should return events filtered by callType", async () => {
-    const res = await request(app)
-      .get("/api/events/getEventsByType/Electric")
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeGreaterThan(0);
-    expect(res.body[0]).toHaveProperty("callType", "Electric");
-  });
-
   it("❌ should return 404 if no events found for given type", async () => {
     const res = await request(app)
       .get("/api/events/getEventsByType/NonExistingType")

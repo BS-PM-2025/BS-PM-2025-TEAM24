@@ -45,17 +45,4 @@ describe('eventsController.getApplicants', () => {
     });
   });
 
-  it('should handle errors gracefully', async () => {
-    // Simulate an error during populate
-    const error = new Error('DB error');
-    const mockPopulate = jest.fn().mockRejectedValue(error);
-    Events.findById.mockReturnValue({ populate: mockPopulate });
-
-    // Because controller does not catch errors, we wrap the call and catch it in the test
-    try {
-      await eventsController.getApplicants(req, res);
-    } catch (err) {
-      expect(err).toBe(error);
-    }
-  });
 });

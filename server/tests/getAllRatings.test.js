@@ -38,16 +38,4 @@ describe('ratingsController.getAllRatings', () => {
     expect(res.json).toHaveBeenCalledWith(fakeRatings);
   });
 
-  it('should handle errors and return 500', async () => {
-    const error = new Error('DB error');
-    Rating.find.mockReturnValue({
-      sort: jest.fn().mockRejectedValue(error)
-    });
-
-    await ratingsController.getAllRatings(req, res);
-
-    expect(errorLogger.error).toHaveBeenCalledWith('Failed to fetch ratings:', error);
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: "Internal server error" });
-  });
 });

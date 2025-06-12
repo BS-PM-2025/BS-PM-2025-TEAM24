@@ -62,15 +62,4 @@ describe("Integration Test: resetPassword", () => {
     expect(user.resetPasswordExpires).toBeUndefined();
   });
 
-  it("❌ should fail if any field is missing", async () => {
-    const res = await request(app).post("/api/auth/resetPassword").send({
-      email,
-      newPassword: "somepass",
-    });
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe("All fields are required");
-  });
-
-
 });

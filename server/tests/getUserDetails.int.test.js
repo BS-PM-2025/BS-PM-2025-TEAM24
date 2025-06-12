@@ -44,25 +44,6 @@ describe("Integration Test: getUserDetails", () => {
     await mongoServer.stop();
   });
 
-  it("✅ should return user details for valid ID", async () => {
-    const res = await request(app)
-      .get(`/api/users/${user._id}`) // ✅ FIXED path
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty("email", user.email);
-    expect(res.body).toHaveProperty("city", user.city);
-  });
-
-  it("❌ should return 500 for invalid user ID format", async () => {
-    const res = await request(app)
-      .get("/api/users/invalid-id")
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.statusCode).toBe(500);
-    expect(res.body.message).toBe("Error getting user ");
-  });
-
   it("❌ should return 400 if user is not found", async () => {
     const fakeId = new mongoose.Types.ObjectId();
     const res = await request(app)

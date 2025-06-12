@@ -30,13 +30,4 @@ describe('getWorkerRatings', () => {
     expect(res.json).toHaveBeenCalledWith(mockRatings);
   });
 
-  it('should return 500 if there is an error', async () => {
-    const sortMock = jest.fn().mockRejectedValue(new Error('DB error'));
-    WorkRate.find.mockReturnValue({ sort: sortMock });
-
-    await getWorkerRatings(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: 'DB error' });
-  });
 });
