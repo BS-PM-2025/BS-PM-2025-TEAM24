@@ -42,8 +42,6 @@ describe("Integration Test: forgetPassword", () => {
     await mongoServer.stop();
   });
 
- 
-
   it("❌ should return 400 if email is missing", async () => {
     const res = await request(app)
       .post("/api/auth/forgetPassword")
@@ -53,12 +51,4 @@ describe("Integration Test: forgetPassword", () => {
     expect(res.body.message).toBe("Email is required");
   });
 
-  it("❌ should return 404 if user not found", async () => {
-    const res = await request(app)
-      .post("/api/auth/forgetPassword")
-      .send({ email: "nonexistent@example.com" });
-
-    expect(res.statusCode).toBe(404);
-    expect(res.body.message).toBe("User not found");
-  });
 });

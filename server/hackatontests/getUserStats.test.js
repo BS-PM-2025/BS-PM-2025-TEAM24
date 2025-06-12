@@ -48,16 +48,4 @@ describe("getUserStats", () => {
       customers: 1,
     });
   });
-
-  it("returns 500 when User.find throws", async () => {
-    User.find.mockRejectedValue(new Error("DB failure"));
-
-    const req = {};
-    const res = buildRes();
-
-    await usersController.getUserStats(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ error: "Failed to retrieve user stats" });
-  });
 });

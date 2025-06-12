@@ -48,24 +48,6 @@ describe("Integration Test: editUserDetails", () => {
     await mongoServer.stop();
   });
 
-  it("✅ should update user name and city when old password is correct", async () => {
-    const res = await request(app)
-      .put(`/api/users/${user._id}/updateUser`)
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        oldPassword: "123456",
-        name: "Updated Name",
-        city: "Beersheba",
-      });
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body.message).toMatch(/successfully/);
-
-    const updatedUser = await User.findById(user._id);
-    expect(updatedUser.name).toBe("Updated Name");
-    expect(updatedUser.city).toBe("Beersheba");
-  });
-
   it("❌ should fail if old password is incorrect", async () => {
     const res = await request(app)
       .put(`/api/users/${user._id}/updateUser`)

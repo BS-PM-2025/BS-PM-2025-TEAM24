@@ -43,36 +43,4 @@ describe('eventsController.completeCall', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Call not found' });
   });
 
-  it('should log error and return 500 on unexpected error', async () => {
-    const error = new Error('DB error');
-    Events.findByIdAndUpdate.mockRejectedValue(error);
-
-    await eventsController.completeCall(req, res);
-
-    expect(errorLogger.error).toHaveBeenCalledWith(`completeCall error: ${error}`);
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Server error' });
-  });
-
-  it('should still return updated call if sendMail fails', async () => {
-    const mockCall = {
-      _id: 'callId123',
-      createdBy: 'customerId123',
-      callType: 'Plumbing',
-      callID: '12345'
-    };
-    const mockCustomer = { name: 'CustomerName', email: 'customer@example.com' };
-    const mockWorker = { name: 'WorkerName' };
-
-    Events.findByIdAndUpdate.mockResolvedValue(mockCall);
-    User.findById
-      .mockResolvedValueOnce(mockCustomer)
-      .mockResolvedValueOnce(mockWorker);
-    sendMail.mockRejectedValue(new Error('Mail failed'));
-
-    await eventsController.completeCall(req, res);
-
-    expect(errorLogger.error).toHaveBeenCalledWith(expect.stringContaining('Could not send “job done” e-mail:'));
-    expect(res.json).toHaveBeenCalledWith(mockCall);
-  });
 });

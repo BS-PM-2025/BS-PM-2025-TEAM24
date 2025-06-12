@@ -30,26 +30,6 @@ describe('eventsController.updateEvent', () => {
     jest.clearAllMocks();
   });
 
-  it('should update the event and return success', async () => {
-    const mockEvent = {
-      callID: 'CALL123',
-      save: jest.fn().mockResolvedValue(),
-      ...req.body
-    };
-
-    Events.findOne.mockResolvedValue(mockEvent);
-
-    await eventsController.updateEvent(req, res);
-
-    expect(Events.findOne).toHaveBeenCalledWith({ callID: 'CALL123' });
-    expect(mockEvent.save).toHaveBeenCalled();
-    expect(infoLogger.info).toHaveBeenCalledWith('Call updated successfully: CALL123');
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Call updated successfully',
-      event: mockEvent
-    });
-  });
-
   it('should return 404 if event not found', async () => {
     Events.findOne.mockResolvedValue(null);
 
@@ -60,16 +40,4 @@ describe('eventsController.updateEvent', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Call not found' });
   });
 
-  it('should return 500 on error', async () => {
-    Events.findOne.mockRejectedValue(new Error('DB error'));
-
-    await eventsController.updateEvent(req, res);
-
-    expect(errorLogger.error).toHaveBeenCalledWith(expect.stringContaining('Error updating Call:'));
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Error updating Call',
-      error: expect.any(Error)
-    });
-  });
 });

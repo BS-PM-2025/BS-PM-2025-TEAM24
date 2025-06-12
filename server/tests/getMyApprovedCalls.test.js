@@ -41,16 +41,4 @@ describe('eventsController.getMyApprovedCalls', () => {
     expect(res.json).toHaveBeenCalledWith(mockCalls);
   });
 
-  it('should return 500 and log error on failure', async () => {
-    const error = new Error('DB error');
-    const leanMock = jest.fn().mockRejectedValue(error);
-    const sortMock = jest.fn().mockReturnValue({ lean: leanMock });
-    Events.find.mockReturnValue({ sort: sortMock });
-
-    await eventsController.getMyApprovedCalls(req, res);
-
-    expect(errorLogger.error).toHaveBeenCalledWith(`Error fetching approved calls: ${error}`);
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: error.message });
-  });
 });

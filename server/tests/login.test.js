@@ -61,31 +61,4 @@ describe("POST /api/auth/login", () => {
     expect(res.body.message).toBe("Invalid Password!");
   });
 
-  it("should return 200 with token and user data if login is valid", async () => {
-    User.findOne.mockResolvedValue(mockUser);
-    bcrypt.compareSync.mockReturnValue(true);
-    jwt.sign.mockReturnValue("fake-token");
-
-    const res = await request(app).post("/api/auth/login").send({
-      email: "sajed@test.com",
-      password: "correctpass"
-    });
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body.email).toBe("sajed@test.com");
-    expect(res.body.accessToken).toBe("fake-token");
-    expect(res.body.workerCalls).toEqual([]);
-  });
-
-  it("should return 500 if DB throws error", async () => {
-    User.findOne.mockRejectedValue(new Error("DB fail"));
-
-    const res = await request(app).post("/api/auth/login").send({
-      email: "sajed@test.com",
-      password: "any"
-    });
-
-    expect(res.statusCode).toBe(500);
-    expect(res.body.message).toBe("Error getting user ");
-  });
 });

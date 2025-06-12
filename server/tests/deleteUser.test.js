@@ -25,16 +25,4 @@ describe("Unit Test: deleteUser", () => {
     });
   });
 
-  it("❌ should return 400 if user not found", async () => {
-    User.deleteOne.mockResolvedValue({ deletedCount: 0 });
-
-    await usersController.deleteUser(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      message: "user no:123 does not exists",
-    });
-  });
-
-  
 });

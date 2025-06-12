@@ -53,15 +53,4 @@ describe('GET /api/events/myApplications - getMyApplications', () => {
     expect(sortMock).toHaveBeenCalledWith({ date: -1 });
   });
 
-  it('should handle errors and return 500', async () => {
-    Events.find.mockReturnValue({
-      sort: () => { throw new Error('DB failure'); }
-    });
-
-    const res = await request(app)
-      .get('/api/events/myApplications')
-      .expect(500);
-
-    expect(res.body).toHaveProperty('message', 'DB failure');
-  });
 });

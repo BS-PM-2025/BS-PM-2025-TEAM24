@@ -88,7 +88,7 @@ exports.eventsController = {
           res.json(events);
           infoLogger.info('Fetched calls for user ${req.userId}');
         } catch (err) {
-          errorLogger.error(Error ,'fetching Calls: ${err}');
+          errorLogger.error(`Error fetching Calls: ${err}`);
           res.status(500).json({
             message: 'Error fetching Calls',
             error  : err.message,

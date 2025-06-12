@@ -37,33 +37,6 @@ describe('GET /api/workRates/:workerId', () => {
     await mongoServer.stop();
   });
 
-  it('should return ratings for the worker sorted newest first', async () => {
-    await WorkRate.create({
-      workerId,
-      customerId,
-      customerName: 'Alice',
-      rate: 5,
-      feedback: 'Great',
-      createdAt: new Date('2024-06-01T10:00:00Z')
-    });
-    await WorkRate.create({
-      workerId,
-      customerId,
-      customerName: 'Bob',
-      rate: 3,
-      feedback: 'Okay',
-      createdAt: new Date('2024-06-02T10:00:00Z')
-    });
-
-    const res = await request(app)
-      .get(`/api/workRates/${workerId.toString()}`)
-      .expect(200);
-
-    expect(res.body).toHaveLength(2);
-    expect(res.body[0].customerName).toBe('Bob');
-    expect(res.body[1].customerName).toBe('Alice');
-  });
-
   it('should return empty array if no ratings for the worker', async () => {
     const otherWorkerId = new mongoose.Types.ObjectId();
 

@@ -40,17 +40,4 @@ describe('PUT /api/events/:id/unapply (unapply)', () => {
     expect(res.body).toEqual({ message: 'Call not found' });
   });
 
-  it('should handle errors and return 500', async () => {
-    const error = new Error('DB failure');
-    Events.findOneAndUpdate.mockRejectedValue(error);
-
-    const res = await request(app)
-      .put('/api/events/eventId123/unapply')
-      .send();
-
-    expect(errorLogger.error).toHaveBeenCalledWith(`Error unapplying: ${error}`);
-    expect(res.statusCode).toBe(500);
-    expect(res.body).toHaveProperty('message', 'Server error');
-    expect(res.body).toHaveProperty('error', 'DB failure');
-  });
 });

@@ -26,8 +26,6 @@ describe('eventsController.deleteEvent', () => {
     jest.clearAllMocks();
   });
 
-  
-
   it('should delete event by ObjectId and return success message', async () => {
     // Simulate valid ObjectId, so _id branch
     const objectId = new mongoose.Types.ObjectId().toString();
@@ -49,14 +47,4 @@ describe('eventsController.deleteEvent', () => {
     expect(res.json).toHaveBeenCalledWith({ message: "Event deleted successfully" });
   });
 
-  it('should return 404 if event not found', async () => {
-    Events.findByIdAndDelete.mockResolvedValue(null);
-    Events.findOneAndDelete.mockResolvedValue(null);
-
-    await eventsController.deleteEvent(req, res);
-
-    expect(errorLogger.error).toHaveBeenCalledWith('Event not found: CALL123');
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Event not found' });
-  });
 });

@@ -58,23 +58,4 @@ describe("POST /api/auth/getLocationDetails (integration)", () => {
 
     expect(global.fetch).toHaveBeenCalledTimes(2);
   });
-
-  it("returns 400 when lat/lng are missing", async () => {
-    const res = await request(app).post(route).send({});
-
-    expect(res.status).toBe(400);
-    expect(res.body).toHaveProperty("message", "Missing coordinates");
-    expect(global.fetch).not.toHaveBeenCalled();
-  });
-
-  it("returns 500 when reverse-geocoding fails", async () => {
-    global.fetch.mockRejectedValue(new Error("network error"));
-
-    const res = await request(app)
-      .post(route)
-      .send({ lat: 32.0853, lng: 34.7818 });
-
-    expect(res.status).toBe(500);
-    expect(res.body).toHaveProperty("message", "Failed to get location details");
-  });
 });

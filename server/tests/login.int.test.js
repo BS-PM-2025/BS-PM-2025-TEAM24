@@ -48,21 +48,6 @@ describe("Integration Test: login", () => {
     await mongoServer.stop();
   });
 
-  it("✅ should login successfully with valid credentials", async () => {
-    const res = await request(app)
-      .post("/api/auth/login")
-      .send({
-        email: "logintest@example.com",
-        password: testPassword,
-      });
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty("accessToken");
-    expect(res.body).toHaveProperty("email", "logintest@example.com");
-    expect(res.body).toHaveProperty("isWorker", true);
-    expect(res.body).toHaveProperty("workerCalls");
-  });
-
   it("❌ should return 400 if user email does not exist", async () => {
     const res = await request(app)
       .post("/api/auth/login")

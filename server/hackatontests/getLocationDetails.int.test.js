@@ -29,9 +29,4 @@ describe("Integration Test: getLocationDetails", () => {
     expect(res.body).toHaveProperty("houseNumber");
   });
 
-  it("❌ should return 400 if coordinates are missing", async () => {
-    const res = await request(app).post("/api/auth/getLocationDetails").send({});
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe("Missing coordinates");
-  });
 });

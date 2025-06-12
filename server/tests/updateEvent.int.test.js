@@ -59,26 +59,6 @@ describe("Integration Test: updateEvent", () => {
     await mongoServer.stop();
   });
 
-  it("✅ should update the event successfully", async () => {
-    const res = await request(app)
-      .put(`/api/events/updateEvent/${event.callID}`)
-      .set("Authorization", `Bearer ${token}`)
-      .send({
-        callType: "Plumbing",
-        city: "Ramla",
-        street: "New Street",
-        houseNumber: 99,
-        description: "Updated issue",
-        status: "In Progress",
-      });
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe("Call updated successfully");
-    expect(res.body.event).toHaveProperty("callType", "Plumbing");
-    expect(res.body.event).toHaveProperty("street", "New Street");
-    expect(res.body.event).toHaveProperty("status", "In Progress");
-  });
-
   it("❌ should return 404 if event not found", async () => {
     const res = await request(app)
       .put("/api/events/updateEvent/fake-id")

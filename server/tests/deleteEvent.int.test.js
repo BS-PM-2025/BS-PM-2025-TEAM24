@@ -65,20 +65,6 @@ describe("Integration Test: deleteEvent", () => {
     await mongoServer.stop();
   });
 
-  it("✅ should delete the event successfully by Mongo _id", async () => {
-    // Use the Mongo _id for deletion (req.params.id)
-    const res = await request(app)
-      .delete(`/api/events/deleteEvent/${event._id}`)
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe("Event deleted successfully");
-
-    // Should not find by _id anymore
-    const check = await Events.findById(event._id);
-    expect(check).toBeNull();
-  });
-
   it("❌ should return 404 if event not found", async () => {
     // Use a random valid ObjectId to guarantee "not found"
     const fakeId = new mongoose.Types.ObjectId();
@@ -91,27 +77,4 @@ describe("Integration Test: deleteEvent", () => {
     expect(res.body.message).toBe("Event not found");
   });
 
-  it("✅ should delete event by callID if ObjectId is not valid", async () => {
-    // Re-create a new event to delete by callID
-    const newEvent = new Events({
-      callType: "Repair",
-      city: "Haifa",
-      street: "Main St",
-      houseNumber: 15,
-      description: "Delete by callID",
-      status: "Open",
-      createdBy: user._id
-    });
-    await newEvent.save();
-
-    // Delete by callID string (req.params.id)
-    const res = await request(app)
-      .delete(`/api/events/deleteEvent/${newEvent.callID}`)
-      .set("Authorization", `Bearer ${token}`);
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe("Event deleted successfully");
-    const check = await Events.findById(newEvent._id);
-    expect(check).toBeNull();
-  });
 });

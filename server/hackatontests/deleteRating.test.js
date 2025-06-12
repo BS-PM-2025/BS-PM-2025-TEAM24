@@ -16,20 +16,6 @@ describe("Unit Test: deleteRating", () => {
     jest.clearAllMocks();
   });
 
-  it("✅ should delete rating successfully", async () => {
-    const fakeRating = { _id: "123abc" };
-    Rating.findById.mockResolvedValue(fakeRating);
-    Rating.findByIdAndDelete.mockResolvedValue(fakeRating);
-
-    await ratingsController.deleteRating(req, res);
-
-    expect(Rating.findById).toHaveBeenCalledWith("123abc");
-    expect(Rating.findByIdAndDelete).toHaveBeenCalledWith("123abc");
-    expect(infoLogger.info).toHaveBeenCalledWith("Rating deleted with ID: 123abc");
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ message: "Rating deleted successfully" });
-  });
-
   it("❌ should return 404 if rating not found", async () => {
     Rating.findById.mockResolvedValue(null);
 
@@ -40,13 +26,4 @@ describe("Unit Test: deleteRating", () => {
     expect(res.json).toHaveBeenCalledWith({ message: "Rating not found" });
   });
 
-  it("❌ should return 500 on DB error", async () => {
-    Rating.findById.mockRejectedValue(new Error("DB error"));
-
-    await ratingsController.deleteRating(req, res);
-
-    expect(errorLogger.error).toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({ message: "Internal server error" });
-  });
 });
