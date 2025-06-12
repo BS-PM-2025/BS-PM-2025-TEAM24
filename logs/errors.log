@@ -32,3 +32,48 @@
 {"level":"error","message":"Error Adding User ","timestamp":"2025-05-17 03:49:46 PM +0300"}
 {"level":"error","message":"Error Getting user from db:Error: DB Fail","timestamp":"2025-05-17 03:49:46 PM +0300"}
 {"level":"error","message":"Error Adding User ","timestamp":"2025-05-17 03:49:46 PM +0300"}
+{"level":"error","message":"No events found for call type: NonExistingType","timestamp":"2025-06-12 08:31:44 PM +0300"}
+{"level":"error","message":"Wrong user email please enter correct email","timestamp":"2025-06-12 08:31:45 PM +0300"}
+{"level":"error","message":"Call not found: fake-id","timestamp":"2025-06-12 08:31:46 PM +0300"}
+{"level":"error","message":"Old password does not match for user no: 684b0f02fd00829639df245f","timestamp":"2025-06-12 08:31:46 PM +0300"}
+{"level":"error","message":"User not found with id: 684b0f02fd00829639df2463","timestamp":"2025-06-12 08:31:47 PM +0300"}
+{"level":"error","message":"Event not found: 684b0f031f54e8a491cf50dc","timestamp":"2025-06-12 08:31:47 PM +0300"}
+{"level":"error","message":"Wrong user email please enter correct email","timestamp":"2025-06-12 08:31:51 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:31:52 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:31:52 PM +0300"}
+{"level":"error","message":"User not found with id: 1234567890abcdef12345678","timestamp":"2025-06-12 08:31:52 PM +0300"}
+{"level":"error","message":"Wrong user id please enter correct id","timestamp":"2025-06-12 08:31:53 PM +0300"}
+{"level":"error","message":"user no:684b0f0b356f13d70e149780 does not exists","timestamp":"2025-06-12 08:31:56 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:32:04 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:32:05 PM +0300"}
+{"level":"error","message":"Wrong user id please enter correct id","timestamp":"2025-06-12 08:32:13 PM +0300"}
+{"level":"error","message":"user no:684b0f65278e29f9065bf5a4 does not exists","timestamp":"2025-06-12 08:33:25 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:33:25 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:33:26 PM +0300"}
+{"level":"error","message":"Wrong user id please enter correct id","timestamp":"2025-06-12 08:33:27 PM +0300"}
+{"level":"error","message":"Old password does not match for user no: 684b0f694f480383aa144bd8","timestamp":"2025-06-12 08:33:29 PM +0300"}
+{"level":"error","message":"User not found with id: 684b0f694f480383aa144bdc","timestamp":"2025-06-12 08:33:29 PM +0300"}
+{"level":"error","message":"Wrong user email please enter correct email","timestamp":"2025-06-12 08:33:31 PM +0300"}
+{"level":"error","message":"Event not found: 684b0f6c1028ba63292b980a","timestamp":"2025-06-12 08:33:32 PM +0300"}
+{"level":"error","message":"Call not found: fake-id","timestamp":"2025-06-12 08:33:33 PM +0300"}
+{"level":"error","message":"No events found for call type: NonExistingType","timestamp":"2025-06-12 08:33:33 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:33:34 PM +0300"}
+{"level":"error","message":"Wrong user email please enter correct email","timestamp":"2025-06-12 08:33:35 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:33:35 PM +0300"}
+{"level":"error","message":"User not found with id: 1234567890abcdef12345678","timestamp":"2025-06-12 08:33:36 PM +0300"}
+{"level":"error","message":"Wrong user id please enter correct id","timestamp":"2025-06-12 08:33:36 PM +0300"}
+{"level":"error","message":"Old password does not match for user no: 684b0fc62b070ddd1dd354c2","timestamp":"2025-06-12 08:35:02 PM +0300"}
+{"level":"error","message":"User not found with id: 684b0fc62b070ddd1dd354c6","timestamp":"2025-06-12 08:35:02 PM +0300"}
+{"level":"error","message":"Wrong user id please enter correct id","timestamp":"2025-06-12 08:35:03 PM +0300"}
+{"level":"error","message":"Wrong user email please enter correct email","timestamp":"2025-06-12 08:35:03 PM +0300"}
+{"level":"error","message":"Call not found: fake-id","timestamp":"2025-06-12 08:35:07 PM +0300"}
+{"level":"error","message":"user no:684b0fccaecbddc1e1416984 does not exists","timestamp":"2025-06-12 08:35:08 PM +0300"}
+{"level":"error","message":"No events found for call type: NonExistingType","timestamp":"2025-06-12 08:35:08 PM +0300"}
+{"level":"error","message":"Event not found: 684b0fcd40dad185853b3ab3","timestamp":"2025-06-12 08:35:09 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:35:09 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:35:10 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:35:13 PM +0300"}
+{"level":"error","message":"User not found with id: 1234567890abcdef12345678","timestamp":"2025-06-12 08:35:14 PM +0300"}
+{"level":"error","message":"Missing Parameters Please send all Parameters ","timestamp":"2025-06-12 08:35:14 PM +0300"}
+{"level":"error","message":"Wrong user email please enter correct email","timestamp":"2025-06-12 08:35:15 PM +0300"}
+{"level":"error","message":"Wrong user id please enter correct id","timestamp":"2025-06-12 08:35:16 PM +0300"}
