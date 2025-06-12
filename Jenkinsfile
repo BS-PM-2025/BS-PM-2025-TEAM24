@@ -1,58 +1,57 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:18'
-            args '-u root --privileged'
-        }
-    }
+  // pick any node that has at least one executor
+  agent any
 
-    environment {
-        NPM_CONFIG_LOGLEVEL = 'warn'
-        NPM_CONFIG_CACHE    = '.npm'
-        CI                  = 'true'
-    }
+  environment {
+    NPM_CONFIG_LOGLEVEL = 'warn'
+    NPM_CONFIG_CACHE    = '.npm'
+    CI                  = 'true'
+  }
 
-    stages {
-        stage('Install All Dependencies') {
-            steps {
-                echo '📦 Installing root, backend, and frontend dependencies...'
-                sh '''
-                    npm install --unsafe-perm || true
+  stages {
+    stage('Install All Dependencies') {
+      steps {
+        script {
+          // launch a node:18 container for installation
+          docker.image('node:18').inside('-u root --privileged') {
+            echo '📦 Installing root, backend, and frontend dependencies…'
+            sh 'npm install --unsafe-perm'
 
-                    # Go into server and install its deps
-                    cd server
-                    npm install --unsafe-perm || true
-
-                    # Now pull in the Babel bits Jest needs—without touching package.json
-                    npm install @babel/core @babel/preset-env babel-jest --no-save || true
-
-                    # Back out and install the React app
-                    cd ../my-react-app
-                    npm install --unsafe-perm || true
-                '''
+            dir('server') {
+              sh 'npm install --unsafe-perm'
             }
-        }
 
-        stage('Run Backend Tests') {
-            steps {
-                echo '🧪 Running server tests…'
-                dir('server') {
-                    // Run tests here so that the freshly-installed babel packages are in scope
-                    sh 'npm test'
-                }
+            dir('my-react-app') {
+              sh 'npm install --unsafe-perm'
             }
+          }
         }
+      }
     }
 
-    post {
-        success {
-            echo '✅ Build completed successfully!'
+    stage('Run Backend Tests') {
+      steps {
+        script {
+          docker.image('node:18').inside('-u root --privileged') {
+            echo '🧪 Running server tests…'
+            dir('server') {
+              sh 'npm test'
+            }
+          }
         }
-        failure {
-            echo '❌ Build failed!'
-        }
-        always {
-            echo '📄 Build finished with status above.'
-        }
+      }
     }
+  }
+
+  post {
+    success {
+      echo '✅ Build succeeded!'
+    }
+    failure {
+      echo '❌ Build failed!'
+    }
+    always {
+      echo '📄 Build finished.'
+    }
+  }
 }
