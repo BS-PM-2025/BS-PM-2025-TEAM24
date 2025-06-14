@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:18'
-            args '-u root --privileged'  // run container as root with full access
+            args '-u root'  // Only root if absolutely necessary
         }
     }
 
@@ -15,32 +15,24 @@ pipeline {
     stages {
         stage('Install All Dependencies') {
             steps {
-                echo '📦 Installing root, backend, and frontend dependencies...'
-
-                sh '''
-                    npm install --unsafe-perm || true
-                    cd server && npm install --unsafe-perm || true
-                    cd ../my-react-app && npm install --unsafe-perm || true
-                '''
+                echo '📦 Installing dependencies...'
+                sh 'npm ci'  // Use npm ci instead of npm install for CI environments
+                sh 'cd server && npm ci'
+                sh 'cd my-react-app && npm ci'
             }
         }
 
         stage('Run Backend Tests') {
             steps {
                 echo '🧪 Running unit tests...'
-                sh 'npm test || true'  // don’t fail the pipeline just because tests fail
+                sh 'npm test'  // Remove || true to fail properly
             }
         }
     }
 
     post {
-        success {
-            echo '✅ Build completed successfully!'
-        }
-        failure {
-            echo '❌ Build failed!'
-        }
         always {
+            junit '**/test-results.xml'  // Add test reporting
             echo '📄 Build finished with status above.'
         }
     }
