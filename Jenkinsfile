@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:18'
-            args '-u root --privileged'  // run container as root with full access
+            args '-u root --privileged'
         }
     }
 
@@ -16,11 +16,10 @@ pipeline {
         stage('Install All Dependencies') {
             steps {
                 echo '📦 Installing root, backend, and frontend dependencies...'
-
                 sh '''
-                    npm install --unsafe-perm || true
-                    cd server && npm install --unsafe-perm || true
-                    cd ../my-react-app && npm install --unsafe-perm || true
+                    npm install --unsafe-perm
+                    cd server && npm install --unsafe-perm
+                    cd ../my-react-app && npm install --unsafe-perm
                 '''
             }
         }
@@ -28,7 +27,7 @@ pipeline {
         stage('Run Backend Tests') {
             steps {
                 echo '🧪 Running unit tests...'
-                sh 'npm test || true'  // don’t fail the pipeline just because tests fail
+                sh 'npm test'  // Removed "|| true" - will now fail properly
             }
         }
     }
